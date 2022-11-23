@@ -1,4 +1,3 @@
-Proper font
 Line numbers
 Alt menu
     Save/Open file
@@ -13,3 +12,8 @@ sync doc across windows and computers
 Einstellungen
     Schriftart
     Schriftgröße
+    Linenumber toggle
+    line rollover toggle
+    select language
+
+text output for programs
