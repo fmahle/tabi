@@ -12,10 +12,17 @@ public class FrameBeispiel
         JFrame root = new JFrame("Beispiel JFrame");
         root.setSize(800, 600);
 
+        JMenuBar menubar = new JMenuBar();
+        JMenu menu = new JMenu("File");
+        JMenuItem foo = new JMenuItem("New");
+        menu.add(foo);
+        menubar.add(menu);
+        root.setJMenuBar(menubar);
+
         JTextArea text = new JTextArea("a");
         text.setFont(new Font("Hack", Font.PLAIN, 13));
 
-        JTextArea line_numbers = new JTextArea("1\n2\n3");
+        JTextArea line_numbers = new JTextArea();
         line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
@@ -41,6 +48,7 @@ public class Line_Number_Inserter implements DocumentListener {
     Line_Number_Inserter(JTextArea ptext, JTextArea pline_numbers) {
         this.text = ptext;
         this.line_numbers = pline_numbers;
+        update_numbers();
     }
 
     private void update_numbers() {
