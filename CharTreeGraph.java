@@ -7,13 +7,13 @@ class CharTreeGraph{
             for(int i=0; i<children.length;i++){
                 if(children[i].c==str.charAt(0)){
                     if(str.length()==1){
-                        
+
                     }
                 }
             }
         }    
     }
-    CharTreeNode[] nodes;
+    private CharTreeNode[] nodes;
     void addStringToGraph(String str){
         
     }
