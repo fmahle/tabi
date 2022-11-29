@@ -10,7 +10,7 @@ public class TextHighlighter implements CaretListener{
     }
     @Override
     public void caretUpdate(CaretEvent e) {
-
+        System.out.println(e.getDot());
         
         // TODO Auto-generated method stub
         

@@ -13,7 +13,7 @@ public class Window implements ActionListener
     JMenuItem save_as;
     JFrame root;
     JTabbedPane tab_manager;
-    JTextArea text;
+   // JTextArea text;
     public Window(String[] args) {
         this.root = new JFrame("Tabi");
         this.root.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -21,7 +21,7 @@ public class Window implements ActionListener
 
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu("File");
-        text= new JTextArea();
+        //text= new JTextArea();
         this.new_file = new JMenuItem("new_file");
         this.open_file = new JMenuItem("open_file");
         this.open_recent = new JMenuItem("open_recent");
@@ -50,13 +50,13 @@ public class Window implements ActionListener
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
 
-        text.getDocument().addDocumentListener(new Line_Number_Inserter(text, line_numbers));
-        TextHighlighter highlighter= new TextHighlighter();
-        text.addCaretListener(highlighter);
-        JScrollPane scroll_plane = new JScrollPane(text);
+        //text.getDocument().addDocumentListener(new Line_Number_Inserter(text, line_numbers));
+        //TextHighlighter highlighter= new TextHighlighter();
+        //text.addCaretListener(highlighter);
+        //JScrollPane scroll_plane = new JScrollPane(text);
 
-        scroll_plane.getViewport().add(text);
-        scroll_plane.setRowHeaderView(line_numbers);
+        //scroll_plane.getViewport().add(text);
+        //scroll_plane.setRowHeaderView(line_numbers);
         if (args.length == 0) {
             new Text_Tab(this.tab_manager, "");
         }

@@ -25,7 +25,7 @@ public class Text_Tab {
         line_numbers.setEditable(false);
 
         this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers));
-
+        this.text_area.addCaretListener(new TextHighlighter());
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
         scroll_plane.getViewport().add(this.text_area);
