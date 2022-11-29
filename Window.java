@@ -48,7 +48,8 @@ public class Window implements ActionListener
         line_numbers.setEditable(false);
 
         text.getDocument().addDocumentListener(new Line_Number_Inserter(text, line_numbers));
-
+        TextHighlighter highlighter= new TextHighlighter();
+        text.addCaretListener(highlighter);
         JScrollPane scroll_plane = new JScrollPane(text);
 
         scroll_plane.getViewport().add(text);
