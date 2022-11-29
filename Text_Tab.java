@@ -1,3 +1,15 @@
+import java.awt.Color;
+import java.awt.Font;
+import java.io.File;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.plaf.synth.ColorType;
+import javax.swing.text.AttributeSet.ColorAttribute;
+
 public class Text_Tab {
     boolean unsaved_changes = false;
     String file_name = "";

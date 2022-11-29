@@ -13,6 +13,7 @@ public class Window implements ActionListener
     JMenuItem save_as;
     JFrame root;
     JTabbedPane tab_manager;
+    JTextArea text;
     public Window(String[] args) {
         this.root = new JFrame("Tabi");
         this.root.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -20,7 +21,7 @@ public class Window implements ActionListener
 
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu("File");
-
+        text= new JTextArea();
         this.new_file = new JMenuItem("new_file");
         this.open_file = new JMenuItem("open_file");
         this.open_recent = new JMenuItem("open_recent");
@@ -44,7 +45,6 @@ public class Window implements ActionListener
 
         this.tab_manager = new JTabbedPane();
 
-<<<<<<< HEAD
         JTextArea line_numbers = new JTextArea();
         line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
         line_numbers.setBackground(Color.LIGHT_GRAY);
@@ -57,7 +57,6 @@ public class Window implements ActionListener
 
         scroll_plane.getViewport().add(text);
         scroll_plane.setRowHeaderView(line_numbers);
-=======
         if (args.length == 0) {
             new Text_Tab(this.tab_manager, "");
         }
@@ -66,7 +65,6 @@ public class Window implements ActionListener
                 new Text_Tab(this.tab_manager, file_name);
             }
         }
->>>>>>> 5b3c13f1c4c756f8a8d6e62598913c99addce9a9
 
         this.root.add(this.tab_manager);
 
@@ -89,7 +87,5 @@ public class Window implements ActionListener
         }
     }
 
-    public static void main(String[] args) {
-        new Tabi_Window(args);
-    }
+   
 }
