@@ -11,9 +11,12 @@ public class Window implements ActionListener
     JMenuItem open_recent;
     JMenuItem save_file;
     JMenuItem save_as;
-    public Window() {
-        JFrame root = new JFrame("Beispiel JFrame");
-        root.setSize(800, 600);
+    JFrame root;
+    JTabbedPane tab_manager;
+    public Window(String[] args) {
+        this.root = new JFrame("Tabi");
+        this.root.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.root.setSize(800, 600);
 
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu("File");
@@ -37,39 +40,41 @@ public class Window implements ActionListener
         menu.add(save_as);
 
         menubar.add(menu);
-        root.setJMenuBar(menubar);
+        this.root.setJMenuBar(menubar);
 
-        JTextArea text = new JTextArea("a");
-        text.setFont(new Font("Hack", Font.PLAIN, 13));
+        this.tab_manager = new JTabbedPane();
 
-        JTextArea line_numbers = new JTextArea();
-        line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
-        line_numbers.setBackground(Color.LIGHT_GRAY);
-        line_numbers.setEditable(false);
+        if (args.length == 0) {
+            new Text_Tab(this.tab_manager, "");
+        }
+        else {
+            for (String file_name : args) {
+                new Text_Tab(this.tab_manager, file_name);
+            }
+        }
 
-        text.getDocument().addDocumentListener(new Line_Number_Inserter(text, line_numbers));
+        this.root.add(this.tab_manager);
 
-        JScrollPane scroll_plane = new JScrollPane(text);
-
-        scroll_plane.getViewport().add(text);
-        scroll_plane.setRowHeaderView(line_numbers);
-
-        root.add(scroll_plane);
-
-        root.setVisible(true);
+        this.root.setVisible(true);
     }
 
     public void actionPerformed (ActionEvent event){
-        System.out.println("the menu got clicked");
         if (event.getSource() == this.new_file) {
-            System.out.println("new file");
+            new Text_Tab(this.tab_manager, "");
         }
-        /*switch (event.getSource()) {
-            case this.new_file:
-                System.out.println("here");
-                break;
-        }*/
+        else if (event.getSource() == this.open_file) {
+
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showOpenDialog(this.root) == JFileChooser.APPROVE_OPTION) {
+                new Text_Tab(this.tab_manager, fileChooser.getSelectedFile().getAbsolutePath());
+            }
+            else {
+               return;
+            }
+        }
     }
 
-
+    public static void main(String[] args) {
+        new Tabi_Window(args);
+    }
 }

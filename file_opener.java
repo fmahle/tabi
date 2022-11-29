@@ -29,16 +29,15 @@ public class Filesystem {
         return null;
     }
 
-    public boolean write(String file_name, String file_content, boolean allow_overwrite) {
+    public boolean write(String file_name, String file_content) {
         try {
             //Create file
-            if (new File(file_name).createNewFile() || allow_overwrite) {
-                //Write to file
-                FileWriter myWriter = new FileWriter(file_name);
-                myWriter.write(file_content);
-                myWriter.close();
-                return true;
-            }
+            new File(file_name).createNewFile();
+            //Write to file
+            FileWriter myWriter = new FileWriter(file_name);
+            myWriter.write(file_content);
+            myWriter.close();
+            return true;
         }
         catch (IOException e) {
             System.out.println("An error occurred while creating/writing a file");
@@ -47,9 +46,12 @@ public class Filesystem {
         return false;
     }
 
+    public boolean does_file_exist(String file_name) {
+        return new File(file_name).isFile();
+    }
+
     //public static void main(String [] args) {
     //    new Filesystem().write("/home/waldfee/test.txt", "Hello Filesystem", false);
     //    System.out.println(new Filesystem().read("/home/waldfee/test.txt"));
     //}
 }
-
