@@ -35,6 +35,7 @@ public class Text_Tab {
 
         if (pfile_name != "") {
             this.file_name = pfile_name;
+            tab_manager.setTitleAt(tab_manager.getTabCount()-1, new File(this.file_name).getName());
             // load file
             this.text_area.setText(new Filesystem().read(this.file_name));
         }

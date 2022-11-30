@@ -45,18 +45,6 @@ public class Window implements ActionListener
 
         this.tab_manager = new JTabbedPane();
 
-        JTextArea line_numbers = new JTextArea();
-        line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
-        line_numbers.setBackground(Color.LIGHT_GRAY);
-        line_numbers.setEditable(false);
-
-        //text.getDocument().addDocumentListener(new Line_Number_Inserter(text, line_numbers));
-        //TextHighlighter highlighter= new TextHighlighter();
-        //text.addCaretListener(highlighter);
-        //JScrollPane scroll_plane = new JScrollPane(text);
-
-        //scroll_plane.getViewport().add(text);
-        //scroll_plane.setRowHeaderView(line_numbers);
         if (args.length == 0) {
             new Text_Tab(this.tab_manager, "");
         }
@@ -86,6 +74,4 @@ public class Window implements ActionListener
             }
         }
     }
-
-   
 }
