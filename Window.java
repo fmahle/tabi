@@ -14,6 +14,7 @@ public class Window implements ActionListener
     JMenuItem open_recent;
     JMenuItem save_file;
     JMenuItem save_as;
+    JMenuItem pyxe; //python execute
     JFrame root;
     JTabbedPane tab_manager;
     Dictionary tabs; //https://www.javatpoint.com/dictionary-class-in-java
@@ -21,29 +22,35 @@ public class Window implements ActionListener
         this.tabs = new Hashtable();
 
         this.root = new JFrame("Tabi");
+
+        this.root.setIconImage(Toolkit.getDefaultToolkit().getImage("icon"));
+
         this.root.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.root.setSize(800, 600);
 
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu("File");
 
-        this.new_file = new JMenuItem("new_file");
-        this.open_file = new JMenuItem("open_file");
-        this.open_recent = new JMenuItem("open_recent");
-        this.save_file = new JMenuItem("save_file");
-        this.save_as = new JMenuItem("save_as");
+        this.new_file = new JMenuItem("new file");
+        this.open_file = new JMenuItem("open file");
+        this.open_recent = new JMenuItem("open recent file");
+        this.save_file = new JMenuItem("save file");
+        this.save_as = new JMenuItem("save file as");
+        this.pyxe = new JMenuItem("execute file");
 
         new_file.addActionListener(this);
         open_file.addActionListener(this);
         open_recent.addActionListener(this);
         save_file.addActionListener(this);
         save_as.addActionListener(this);
+        pyxe.addActionListener(this);
 
         menu.add(new_file);
         menu.add(open_file);
         menu.add(open_recent);
         menu.add(save_file);
         menu.add(save_as);
+        menu.add(pyxe);
 
         menubar.add(menu);
         this.root.setJMenuBar(menubar);
@@ -93,6 +100,9 @@ public class Window implements ActionListener
         }
         else if (event.getSource() == this.save_as) {
             selab().save_as();
+        }
+        else if (event.getSource() == this.pyxe) {
+            selab().execute();
         }
     }
 }

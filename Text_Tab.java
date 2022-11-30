@@ -1,14 +1,16 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.plaf.synth.ColorType;
-import javax.swing.text.AttributeSet.ColorAttribute;
+//import javax.swing.plaf.synth.ColorType;
+//import javax.swing.text.AttributeSet.ColorAttribute;
 
 public class Text_Tab {
     boolean unsaved_changes = false;
@@ -81,5 +83,31 @@ public class Text_Tab {
             return;
         }
         new Filesystem().write(this.file_name, this.text_area.getText());
+    }
+
+    public void execute() {
+        if (this.file_name == "") {
+            save_document();
+            if (this.file_name == "") {
+                return;
+            }
+        }
+
+        try {
+            Process Demo_Process = new ProcessBuilder("python", this.file_name).inheritIO().start();
+            Demo_Process.waitFor();
+
+            BufferedReader Buffered_Reader = new BufferedReader(
+                                            new InputStreamReader(
+                                            Demo_Process.getInputStream()
+                                            ));
+            String Output_line = "";
+
+            while ((Output_line = Buffered_Reader.readLine()) != null) {
+                System.out.println(Output_line);
+            }
+        }
+        catch (IOException e) {}
+        catch (InterruptedException e) {}
     }
 }
