@@ -14,6 +14,7 @@ public class Text_Tab {
     boolean unsaved_changes = false;
     String file_name = "";
     JTextArea text_area;
+    int tab_index;
     Text_Tab(JTabbedPane tab_manager, String pfile_name) {
         System.out.println(pfile_name);
         this.text_area = new JTextArea();
@@ -33,15 +34,30 @@ public class Text_Tab {
 
         tab_manager.add("New", scroll_plane);
 
+        this.tab_index = tab_manager.getTabCount()-1;
+
         if (pfile_name != "") {
             this.file_name = pfile_name;
-            tab_manager.setTitleAt(tab_manager.getTabCount()-1, new File(this.file_name).getName());
+            tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
             // load file
             this.text_area.setText(new Filesystem().read(this.file_name));
         }
 
         // Make this the selected tab
-        tab_manager.setSelectedIndex(tab_manager.getTabCount()-1);
+        tab_manager.setSelectedIndex(this.tab_index);
+    }
+
+    public int get_index() {
+        return this.tab_index;
+    }
+
+    public void save_as() {
+        String temp = this.file_name;
+        this.file_name = "";
+        save_document();
+        if (this.file_name == "") {
+            this.file_name = temp;
+        }
     }
 
     public void save_document() {
@@ -57,13 +73,13 @@ public class Text_Tab {
             int userSelection = fileChooser.showSaveDialog(parentFrame);
 
             if (userSelection == JFileChooser.APPROVE_OPTION) {
-                File fileToSave = fileChooser.getSelectedFile();
-                System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+                this.file_name = fileChooser.getSelectedFile().getAbsolutePath();
             }
         }
-        //if (this.file_name == "") {
-        //    return;
-        //}
+        if (this.file_name == "") {
+            System.out.println("aborting save");
+            return;
+        }
         new Filesystem().write(this.file_name, this.text_area.getText());
     }
 }

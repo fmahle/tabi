@@ -3,4 +3,3 @@ class main{
         new Window(args);
     }
 }
-
