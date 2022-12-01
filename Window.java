@@ -11,10 +11,12 @@ public class Window implements ActionListener
 {
     JMenuItem new_file;
     JMenuItem open_file;
-    JMenuItem open_recent;
+    JMenu open_recent;
     JMenuItem save_file;
     JMenuItem save_as;
     JMenuItem pyxe; //python execute
+    JMenuItem close_file;
+    JMenuItem[] recent_files;
     JFrame root;
     JTabbedPane tab_manager;
     Dictionary tabs; //https://www.javatpoint.com/dictionary-class-in-java
@@ -29,33 +31,43 @@ public class Window implements ActionListener
         this.root.setSize(800, 600);
 
         JMenuBar menubar = new JMenuBar();
-        JMenu menu = new JMenu("File");
+        JMenu file_menu = new JMenu("File");
+        JMenu execution_menu = new JMenu("Run!");
 
         this.new_file = new JMenuItem("new file");
         this.open_file = new JMenuItem("open file");
-        this.open_recent = new JMenuItem("open recent file");
+        this.open_recent = new JMenu("open recent file");
         this.save_file = new JMenuItem("save file");
         this.save_as = new JMenuItem("save file as");
+        this.close_file = new JMenuItem("Close current file");
         this.pyxe = new JMenuItem("execute file");
 
-        new_file.addActionListener(this);
-        open_file.addActionListener(this);
-        open_recent.addActionListener(this);
-        save_file.addActionListener(this);
-        save_as.addActionListener(this);
-        pyxe.addActionListener(this);
+        this.new_file.addActionListener(this);
+        this.open_file.addActionListener(this);
+        this.save_file.addActionListener(this);
+        this.save_as.addActionListener(this);
+        this.close_file.addActionListener(this);
+        this.pyxe.addActionListener(this);
 
-        menu.add(new_file);
-        menu.add(open_file);
-        menu.add(open_recent);
-        menu.add(save_file);
-        menu.add(save_as);
-        menu.add(pyxe);
+        file_menu.add(new_file);
+        file_menu.add(open_file);
+        file_menu.add(open_recent);
+        file_menu.add(save_file);
+        file_menu.add(save_as);
+        file_menu.add(close_file);
 
-        menubar.add(menu);
+        execution_menu.add(pyxe);
+
+        menubar.add(file_menu);
+        menubar.add(execution_menu);
         this.root.setJMenuBar(menubar);
 
         this.tab_manager = new JTabbedPane();
+        //this.tab_manager.addChangeListener(new ChangeListener() {
+        //    public void stateChanged(ChangeEvent e) {
+        //        System.out.println("Tab: " + tab_manager.getSelectedIndex());
+        //    }
+        //});
 
         if (args.length == 0) {
             new_tab("");
@@ -69,6 +81,20 @@ public class Window implements ActionListener
         this.root.add(this.tab_manager);
 
         this.root.setVisible(true);
+        update_recent_file_list();
+    }
+
+    private void update_recent_file_list() {
+        String[] files = new Filesystem().read(".recent_files").split("\n");
+        recent_files = new JMenuItem[files.length];
+        int i = 0;
+        for (String file_name : files) {
+            System.out.println(file_name);
+            recent_files[i] = new JMenuItem(file_name);
+            recent_files[i].addActionListener(this);
+            open_recent.add(recent_files[i]);
+            i++;
+        }
     }
 
     private Text_Tab new_tab(String file_name) {
@@ -103,6 +129,25 @@ public class Window implements ActionListener
         }
         else if (event.getSource() == this.pyxe) {
             selab().execute();
+        }
+        else if (event.getSource() == this.close_file) {
+            selab().close_file();
+            if (tab_manager.getTabCount() == 0) {
+                new_tab("");
+            }
+        }
+        else {
+            for (JMenuItem menu_file : this.recent_files) {
+                if (event.getSource() == menu_file) {
+                    String file = menu_file.getText();
+                    if (new Filesystem().does_file_exist(file)) {
+                        new_tab(file);
+                    }
+                    else {
+                        //TODO
+                    }
+                }
+            }
         }
     }
 }

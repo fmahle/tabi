@@ -17,7 +17,9 @@ public class Text_Tab {
     String file_name = "";
     JTextArea text_area;
     int tab_index;
-    Text_Tab(JTabbedPane tab_manager, String pfile_name) {
+    JTabbedPane tab_manager;
+    Text_Tab(JTabbedPane ptab_manager, String pfile_name) {
+        this.tab_manager = ptab_manager;
         System.out.println(pfile_name);
         this.text_area = new JTextArea();
         this.text_area.setFont(new Font("Hack", Font.PLAIN, 13));
@@ -34,19 +36,19 @@ public class Text_Tab {
         scroll_plane.getViewport().add(this.text_area);
         scroll_plane.setRowHeaderView(line_numbers);
 
-        tab_manager.add("New", scroll_plane);
+        this.tab_manager.add("New", scroll_plane);
 
-        this.tab_index = tab_manager.getTabCount()-1;
+        this.tab_index = this.tab_manager.getTabCount()-1;
 
         if (pfile_name != "") {
             this.file_name = pfile_name;
-            tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
             // load file
             this.text_area.setText(new Filesystem().read(this.file_name));
         }
 
         // Make this the selected tab
-        tab_manager.setSelectedIndex(this.tab_index);
+        this.tab_manager.setSelectedIndex(this.tab_index);
     }
 
     public int get_index() {
@@ -109,5 +111,10 @@ public class Text_Tab {
         }
         catch (IOException e) {}
         catch (InterruptedException e) {}
+    }
+    public void close_file() {
+        System.out.println("close_file");
+        //TODO add "save-before-close dialog"
+        this.tab_manager.remove(this.tab_index);
     }
 }
