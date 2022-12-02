@@ -3,11 +3,12 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
 
-public class Window implements ActionListener
+public class Window
 {
     JMenuItem new_file;
     JMenuItem open_file;
@@ -31,23 +32,125 @@ public class Window implements ActionListener
         this.root.setSize(800, 600);
 
         JMenuBar menubar = new JMenuBar();
-        JMenu file_menu = new JMenu("File");
-        JMenu execution_menu = new JMenu("Run!");
+        JMenu file_menu = new JMenu("Fil");
+        JMenu execution_menu = new JMenu("Run");
 
-        this.new_file = new JMenuItem("new file");
-        this.open_file = new JMenuItem("open file");
-        this.open_recent = new JMenu("open recent file");
-        this.save_file = new JMenuItem("save file");
-        this.save_as = new JMenuItem("save file as");
-        this.close_file = new JMenuItem("Close current file");
-        this.pyxe = new JMenuItem("execute file");
 
-        this.new_file.addActionListener(this);
-        this.open_file.addActionListener(this);
-        this.save_file.addActionListener(this);
-        this.save_as.addActionListener(this);
-        this.close_file.addActionListener(this);
-        this.pyxe.addActionListener(this);
+        Action action8 = new AbstractAction("File") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Opening file menu");
+            }
+        };
+
+        action8.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_F);
+        file_menu.setAction(action8);
+
+
+        Action action9 = new AbstractAction("Run!") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Opening execution_menu");
+            }
+        };
+
+        action9.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        execution_menu.setAction(action9);
+
+
+
+        this.new_file = new JMenuItem();
+        this.open_file = new JMenuItem();
+        this.open_recent = new JMenu();
+        this.save_file = new JMenuItem();
+        this.save_as = new JMenuItem();
+        this.close_file = new JMenuItem();
+        this.pyxe = new JMenuItem();
+
+
+        Action action1 = new AbstractAction("New File") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new_tab("");
+            }
+        };
+
+        action1.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_N);
+        new_file.setAction(action1);
+
+
+        Action action2 = new AbstractAction("Open File") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                if (fileChooser.showOpenDialog(root) == JFileChooser.APPROVE_OPTION) {
+                    new_tab(fileChooser.getSelectedFile().getAbsolutePath());
+                }
+                else {
+                    return;
+                }
+            }
+        };
+
+        action2.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
+        open_file.setAction(action2);
+
+
+        Action action3 = new AbstractAction("Open Recent File") {
+            @Override
+            public void actionPerformed(ActionEvent e) {}
+        };
+
+        action3.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        open_recent.setAction(action3);
+
+
+        Action action4 = new AbstractAction("Save File") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selab().save_document();
+            }
+        };
+
+        action4.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
+        save_file.setAction(action4);
+
+
+        Action action5 = new AbstractAction("Save File As") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selab().save_as();
+            }
+        };
+
+        action5.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_A);
+        save_as.setAction(action5);
+
+
+        Action action6 = new AbstractAction("Close Current Document") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selab().close_file();
+                if (tab_manager.getTabCount() == 0) {
+                    new_tab("");
+                }
+            }
+        };
+
+        action6.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
+        close_file.setAction(action6);
+
+
+        Action action7 = new AbstractAction("Execute") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selab().execute();
+            }
+        };
+
+        action7.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        pyxe.setAction(action7);
+
 
         file_menu.add(new_file);
         file_menu.add(open_file);
@@ -90,8 +193,23 @@ public class Window implements ActionListener
         int i = 0;
         for (String file_name : files) {
             System.out.println(file_name);
-            recent_files[i] = new JMenuItem(file_name);
-            recent_files[i].addActionListener(this);
+            recent_files[i] = new JMenuItem();
+
+
+            Action an_action = new AbstractAction(file_name) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (new Filesystem().does_file_exist(file_name)) {
+                        new_tab(file_name);
+                    }
+                    else {
+                        //TODO
+                    }
+                }
+            };
+
+            recent_files[i].setAction(an_action);
+
             open_recent.add(recent_files[i]);
             i++;
         }
@@ -105,49 +223,5 @@ public class Window implements ActionListener
 
     private Text_Tab selab() { //get_selected_tab()
         return (Text_Tab) tabs.get(tab_manager.getSelectedIndex());
-    }
-
-    public void actionPerformed (ActionEvent event){
-        if (event.getSource() == this.new_file) {
-            new_tab("");
-        }
-        else if (event.getSource() == this.open_file) {
-
-            JFileChooser fileChooser = new JFileChooser();
-            if (fileChooser.showOpenDialog(this.root) == JFileChooser.APPROVE_OPTION) {
-                new_tab(fileChooser.getSelectedFile().getAbsolutePath());
-            }
-            else {
-               return;
-            }
-        }
-        else if (event.getSource() == this.save_file) {
-            selab().save_document();
-        }
-        else if (event.getSource() == this.save_as) {
-            selab().save_as();
-        }
-        else if (event.getSource() == this.pyxe) {
-            selab().execute();
-        }
-        else if (event.getSource() == this.close_file) {
-            selab().close_file();
-            if (tab_manager.getTabCount() == 0) {
-                new_tab("");
-            }
-        }
-        else {
-            for (JMenuItem menu_file : this.recent_files) {
-                if (event.getSource() == menu_file) {
-                    String file = menu_file.getText();
-                    if (new Filesystem().does_file_exist(file)) {
-                        new_tab(file);
-                    }
-                    else {
-                        //TODO
-                    }
-                }
-            }
-        }
     }
 }
