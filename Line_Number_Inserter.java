@@ -10,14 +10,13 @@ import java.awt.event.ActionListener;
 public class Line_Number_Inserter implements DocumentListener {
     private JTextArea text, line_numbers;
     private int lineCount;
+    private boolean[] unsaved_changes;
  
-    Line_Number_Inserter(JTextArea ptext, JTextArea pline_numbers) {
+    Line_Number_Inserter(JTextArea ptext, JTextArea pline_numbers, boolean[] punsaved_changes) {
         this.text = ptext;
         this.line_numbers = pline_numbers;
+        this.unsaved_changes = punsaved_changes;
         lineCount=0;
-        update_numbers();
-       
-
     }
 
     private void update_numbers() {
@@ -33,36 +32,34 @@ public class Line_Number_Inserter implements DocumentListener {
             }
         }
         this.line_numbers.setText(result);
+        this.unsaved_changes[0] = true;
     }
 
     public void insertUpdate(DocumentEvent e) {
-        Document doc= e.getDocument();
-        try{
-        String t=doc.getText(e.getOffset(), e.getLength());
-        if(t.contains("\n")){
-            
-            this.text.setText(this.text.getText()+"\n"+lineCount);
-            lineCount++;
-        }
-        //System.out.println(t);
-        }catch(Exception e_){}
-            update_numbers();
+        //Document doc = e.getDocument();
+        //try{
+        //String t = doc.getText(e.getOffset(), e.getLength());
+        //if (t.contains("\n")) {
+        //
+        //    this.text.setText(this.text.getText() + "\n" + lineCount);
+        //    lineCount++;
+        //}
+        ////System.out.println(t);
+        //} catch (Exception e_) {}
+        update_numbers();
 
 
     }
     public void removeUpdate(DocumentEvent e) {
-
-        try{
-            Document document= e.getDocument();
-            String text=document.getText(0, document.getLength());
-            
-
-        }catch(Exception ex){}
+        //try{
+        //    Document document= e.getDocument();
+        //    String text=document.getText(0, document.getLength());
+        //
+        //
+        //}catch(Exception ex){}
         update_numbers();
     }
     public void changedUpdate(DocumentEvent e) {
-
-    
         //Plain text components do not fire these events
     }
 

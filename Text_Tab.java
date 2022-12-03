@@ -9,16 +9,17 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-//import javax.swing.plaf.synth.ColorType;
-//import javax.swing.text.AttributeSet.ColorAttribute;
+import javax.swing.JOptionPane;
 
 public class Text_Tab {
-    boolean unsaved_changes = false;
+    boolean[] unsaved_changes = {false}; // bools are immutable yet arrays are
     String file_name = "";
     JTextArea text_area;
     int tab_index;
     JTabbedPane tab_manager;
-    Text_Tab(JTabbedPane ptab_manager, String pfile_name) {
+    Window root;
+    Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
+        this.root = root;
         this.tab_manager = ptab_manager;
         System.out.println(pfile_name);
         this.text_area = new JTextArea();
@@ -29,7 +30,7 @@ public class Text_Tab {
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
 
-        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers));
+        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
         this.text_area.addCaretListener(new TextHighlighter());
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
@@ -66,9 +67,6 @@ public class Text_Tab {
 
     public void save_document() {
         if (this.file_name == "") {
-            //ask user where to save file
-            // TODO
-
             JFrame parentFrame = new JFrame();
 
             JFileChooser fileChooser = new JFileChooser();
@@ -79,18 +77,19 @@ public class Text_Tab {
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 this.file_name = fileChooser.getSelectedFile().getAbsolutePath();
             }
-        }
-        if (this.file_name == "") {
-            System.out.println("aborting save");
-            return;
+            else {
+                return;
+            }
         }
         new Filesystem().write(this.file_name, this.text_area.getText());
+        this.unsaved_changes[0] = false;
     }
 
     public void execute() {
         if (this.file_name == "") {
             save_document();
             if (this.file_name == "") {
+                JOptionPane.showMessageDialog(this.tab_manager, "You need to save your files in order to run them!");
                 return;
             }
         }
@@ -112,9 +111,29 @@ public class Text_Tab {
         catch (IOException e) {}
         catch (InterruptedException e) {}
     }
-    public void close_file() {
-        System.out.println("close_file");
-        //TODO add "save-before-close dialog"
+    public boolean close_file() {
+        if (this.unsaved_changes[0]) {
+            int reply = JOptionPane.showConfirmDialog(null, "Do you want to save this document? ", "Save" + this.file_name + " ?", JOptionPane.YES_NO_CANCEL_OPTION);
+
+            if (reply != JOptionPane.NO_OPTION && reply != JOptionPane.YES_OPTION) {
+                return false;
+            }
+        }
+
         this.tab_manager.remove(this.tab_index);
+
+        if (this.file_name != "") {
+            boolean file_already_in_list = false;
+            for (String file : new Filesystem().read(".recent_files").split("\n")) {
+                if (file == this.file_name) {
+                    file_already_in_list = true;
+                }
+            }
+            if (!file_already_in_list) {
+                new Filesystem().write(".recent_files", this.file_name + "\n" + new Filesystem().read(".recent_files"));
+            }
+            this.root.update_recent_file_list();
+        }
+        return true;
     }
 }

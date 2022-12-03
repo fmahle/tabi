@@ -1,9 +1,7 @@
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -28,19 +26,32 @@ public class Window
 
         this.root.setIconImage(Toolkit.getDefaultToolkit().getImage("icon"));
 
-        this.root.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.root.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+        this.root.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                do {
+                    if (!selab().close_file()) {
+                        return;
+                    }
+                } while (tab_manager.getTabCount() != 0);
+                root.setVisible(false);
+                System.exit(0);
+            }
+        });
+
+
         this.root.setSize(800, 600);
 
         JMenuBar menubar = new JMenuBar();
-        JMenu file_menu = new JMenu("Fil");
-        JMenu execution_menu = new JMenu("Run");
+        JMenu file_menu = new JMenu();
+        JMenu execution_menu = new JMenu();
 
 
         Action action8 = new AbstractAction("File") {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Opening file menu");
-            }
+            public void actionPerformed(ActionEvent e) {}
         };
 
         action8.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_F);
@@ -49,9 +60,7 @@ public class Window
 
         Action action9 = new AbstractAction("Run!") {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Opening execution_menu");
-            }
+            public void actionPerformed(ActionEvent e) {}
         };
 
         action9.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
@@ -148,7 +157,7 @@ public class Window
             }
         };
 
-        action7.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        action7.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_E);
         pyxe.setAction(action7);
 
 
@@ -187,7 +196,8 @@ public class Window
         update_recent_file_list();
     }
 
-    private void update_recent_file_list() {
+    public void update_recent_file_list() {
+        open_recent.removeAll();
         String[] files = new Filesystem().read(".recent_files").split("\n");
         recent_files = new JMenuItem[files.length];
         int i = 0;
@@ -203,7 +213,7 @@ public class Window
                         new_tab(file_name);
                     }
                     else {
-                        //TODO
+                        JOptionPane.showMessageDialog(root, "This file could not be found: \n" + file_name);
                     }
                 }
             };
@@ -216,7 +226,7 @@ public class Window
     }
 
     private Text_Tab new_tab(String file_name) {
-        Text_Tab temp = new Text_Tab(this.tab_manager, file_name);
+        Text_Tab temp = new Text_Tab(this.tab_manager, this, file_name);
         tabs.put(temp.get_index(), temp);
         return temp;
     }
