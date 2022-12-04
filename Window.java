@@ -93,10 +93,12 @@ public class Window
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
                 if (fileChooser.showOpenDialog(root) == JFileChooser.APPROVE_OPTION) {
-                    new_tab(fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                else {
-                    return;
+                    if (selab().file_name == "" && (!selab().unsaved_changes[0])) {
+                        selab().open_file(fileChooser.getSelectedFile().getAbsolutePath());
+                    }
+                    else {
+                        new_tab(fileChooser.getSelectedFile().getAbsolutePath());
+                    }
                 }
             }
         };
@@ -202,7 +204,6 @@ public class Window
         recent_files = new JMenuItem[files.length];
         int i = 0;
         for (String file_name : files) {
-            System.out.println(file_name);
             recent_files[i] = new JMenuItem();
 
 

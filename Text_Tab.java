@@ -12,8 +12,8 @@ import javax.swing.JTextArea;
 import javax.swing.JOptionPane;
 
 public class Text_Tab {
-    boolean[] unsaved_changes = {false}; // bools are immutable yet arrays are
-    String file_name = "";
+    public boolean[] unsaved_changes = {false}; // bools are immutable yet arrays are
+    public String file_name = "";
     JTextArea text_area;
     int tab_index;
     JTabbedPane tab_manager;
@@ -30,8 +30,6 @@ public class Text_Tab {
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
 
-        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
-        this.text_area.addCaretListener(new TextHighlighter());
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
         scroll_plane.getViewport().add(this.text_area);
@@ -42,14 +40,26 @@ public class Text_Tab {
         this.tab_index = this.tab_manager.getTabCount()-1;
 
         if (pfile_name != "") {
-            this.file_name = pfile_name;
-            this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
-            // load file
-            this.text_area.setText(new Filesystem().read(this.file_name));
+            open_file(pfile_name);
         }
+
+        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
+        this.text_area.addCaretListener(new TextHighlighter());
 
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
+    }
+
+    public void open_file(String pfile_name) {
+        this.file_name = pfile_name;
+        this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+        this.text_area.setText(new Filesystem().read(this.file_name));
+        try {
+            Thread.sleep(50);
+        }
+        catch (InterruptedException e) {}
+
+        unsaved_changes[0] = false;
     }
 
     public int get_index() {
@@ -80,6 +90,7 @@ public class Text_Tab {
             else {
                 return;
             }
+            this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
         }
         new Filesystem().write(this.file_name, this.text_area.getText());
         this.unsaved_changes[0] = false;
