@@ -17,6 +17,7 @@ public class Line_Number_Inserter implements DocumentListener {
         this.line_numbers = pline_numbers;
         this.unsaved_changes = punsaved_changes;
         lineCount=0;
+        update_numbers();
     }
 
     private void update_numbers() {

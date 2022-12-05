@@ -6,8 +6,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 
-public class Window
-{
+public class Window {
     JMenuItem new_file;
     JMenuItem open_file;
     JMenu open_recent;
@@ -177,11 +176,36 @@ public class Window
         this.root.setJMenuBar(menubar);
 
         this.tab_manager = new JTabbedPane();
-        //this.tab_manager.addChangeListener(new ChangeListener() {
-        //    public void stateChanged(ChangeEvent e) {
-        //        System.out.println("Tab: " + tab_manager.getSelectedIndex());
-        //    }
-        //});
+
+        /*
+
+        String title = "Ignore this Tab";
+        JScrollPane tabBody = new JScrollPane(new JTextArea());
+
+        this.tab_manager.addTab(title, tabBody);
+        int index = this.tab_manager.indexOfTab(title);
+
+        JPanel pnlTab = new JPanel(new GridBagLayout());
+
+        JLabel lblTitle = new JLabel(title);
+        JButton btnClose = new JButton("x");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+
+        pnlTab.add(lblTitle, gbc);
+
+        gbc.gridx++;
+        gbc.weightx = 0;
+        pnlTab.add(btnClose, gbc);
+
+        this.tab_manager.setTabComponentAt(index, pnlTab);
+
+        btnClose.addActionListener(new MyCloseActionHandler());
+
+        *////////////////////////
 
         if (args.length == 0) {
             new_tab("");
@@ -191,6 +215,17 @@ public class Window
                 new_tab(file_name);
             }
         }
+
+        //this.tab_manager.addChangeListener(new ChangeListener() {
+        //    public void stateChanged(ChangeEvent e) {
+        //        //System.out.println("Tab: " + tab_manager.getSelectedIndex());
+        //        //try {
+        //        //    Thread.sleep(50);
+        //        //}
+        //        //catch (InterruptedException ex) {}
+        //        root.setTitle(" -- Tabi");
+        //    }
+        //});
 
         this.root.add(this.tab_manager);
 
@@ -211,7 +246,12 @@ public class Window
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (new Filesystem().does_file_exist(file_name)) {
-                        new_tab(file_name);
+                        if (selab().file_name == "" && (!selab().unsaved_changes[0])) {
+                            selab().open_file(file_name);
+                        }
+                        else {
+                            new_tab(file_name);
+                        }
                     }
                     else {
                         JOptionPane.showMessageDialog(root, "This file could not be found: \n" + file_name);

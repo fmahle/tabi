@@ -1,17 +1,25 @@
-import java.awt.Color;
-import java.awt.Font;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import javax.swing.event.*;
+import java.awt.*;
+import java.awt.event.*;
 
 public class Text_Tab {
+    public class MyCloseActionHandler implements ActionListener {
+        //Text_Tab tab;
+        //
+        //public MyCloseActionHandler(Text_Tab ptab) {
+        //    this.tab = ptab;
+        //}
+
+        public void actionPerformed(ActionEvent evt) {
+            close_file();
+        }
+    }
+
     public boolean[] unsaved_changes = {false}; // bools are immutable yet arrays are
     public String file_name = "";
     JTextArea text_area;
@@ -39,27 +47,51 @@ public class Text_Tab {
 
         this.tab_index = this.tab_manager.getTabCount()-1;
 
+        /*
+        JPanel pnlTab = new JPanel(new GridBagLayout());
+
+        JLabel lblTitle = new JLabel("New");
+        JButton btnClose = new JButton("x");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+
+        pnlTab.add(lblTitle, gbc);
+
+        gbc.gridx++;
+        gbc.weightx = 0;
+        pnlTab.add(btnClose, gbc);
+
+        this.tab_manager.setTabComponentAt(this.tab_index, pnlTab);
+
+        btnClose.addActionListener(new MyCloseActionHandler());
+        */
+
+        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
+        this.text_area.addCaretListener(new TextHighlighter());
+
         if (pfile_name != "") {
             open_file(pfile_name);
         }
 
-        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
-        this.text_area.addCaretListener(new TextHighlighter());
+        this.unsaved_changes[0] = false;
 
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
 
     public void open_file(String pfile_name) {
-        this.file_name = pfile_name;
-        this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
-        this.text_area.setText(new Filesystem().read(this.file_name));
-        try {
-            Thread.sleep(50);
+        if (new Filesystem().does_file_exist(pfile_name)) {
+            this.file_name = pfile_name;
+            this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            this.text_area.setText(new Filesystem().read(this.file_name));
+            this.unsaved_changes[0] = false;
         }
-        catch (InterruptedException e) {}
-
-        unsaved_changes[0] = false;
+        else {
+            JOptionPane.showMessageDialog(this.tab_manager, "This file could not be found: \n" + pfile_name);
+        }
     }
 
     public int get_index() {
@@ -80,7 +112,7 @@ public class Text_Tab {
             JFrame parentFrame = new JFrame();
 
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Specify a file to save");
+            fileChooser.setDialogTitle("Specify where to save this file in order to run it");
 
             int userSelection = fileChooser.showSaveDialog(parentFrame);
 
@@ -136,14 +168,15 @@ public class Text_Tab {
         if (this.file_name != "") {
             boolean file_already_in_list = false;
             for (String file : new Filesystem().read(".recent_files").split("\n")) {
-                if (file == this.file_name) {
+                if (file.equals(this.file_name)) {
                     file_already_in_list = true;
+                    return true;
                 }
             }
             if (!file_already_in_list) {
                 new Filesystem().write(".recent_files", this.file_name + "\n" + new Filesystem().read(".recent_files"));
+                this.root.update_recent_file_list();
             }
-            this.root.update_recent_file_list();
         }
         return true;
     }
