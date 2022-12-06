@@ -13,6 +13,7 @@ import javax.swing.text.AttributeSet.ColorAttribute;
 public class Text_Tab {
     boolean unsaved_changes = false;
     String file_name = "";
+    
     JTextArea text_area;
     Text_Tab(JTabbedPane tab_manager, String pfile_name) {
         System.out.println(pfile_name);
@@ -25,7 +26,7 @@ public class Text_Tab {
         line_numbers.setEditable(false);
 
         this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers));
-        this.text_area.addCaretListener(new TextHighlighter());
+        this.text_area.addCaretListener(new TextHighlighter(text_area));
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
         scroll_plane.getViewport().add(this.text_area);
