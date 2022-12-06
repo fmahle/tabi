@@ -25,12 +25,14 @@ public class TextHighlighter implements CaretListener{
     }
     @Override
     public void caretUpdate(CaretEvent e) {
+         
         String thisLine;
         //get current line
         String text= area.getText();
         int firstIndex=0;
-        int lastIndex=0;
-        for(int i=e.getDot(); i<area.getText().length();i++){
+        int lastIndex=text.length();
+        int dotPos=e.getDot();
+        for(int i=dotPos; i<text.length();i++){
             if(text.charAt(i)=='\n'){
                 lastIndex=i;
                 break;
@@ -38,12 +40,18 @@ public class TextHighlighter implements CaretListener{
 
             
         }
-        for(int i=e.getDot();i>0;i--){
+        
+        for(int i=dotPos-1;i>=0;i--){
+            
             if(text.charAt(i)=='\n'){
                 firstIndex=i;
                 break;
             }
+            
         }
+        
+        if(firstIndex>=lastIndex)return;
+        
         StyledDocument sDoc=area.getStyledDocument();
         thisLine= text.substring(firstIndex, lastIndex);
         for(int i=0; i<thisLine.length();i++){
@@ -51,7 +59,7 @@ public class TextHighlighter implements CaretListener{
             if(t!=null){
                 SimpleAttributeSet colorAttributeSet=new SimpleAttributeSet();
                 StyleConstants.setForeground(colorAttributeSet,new Color(t.color));
-                sDoc.setCharacterAttributes(i,t.tokenName.length(),colorAttributeSet,true);
+                sDoc.setCharacterAttributes(firstIndex+i,t.tokenName.length(),colorAttributeSet,true);
                 i+=t.tokenName.length()-1;
             }
 

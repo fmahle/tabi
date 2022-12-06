@@ -46,6 +46,7 @@ class CharTreeGraph{
                 }
                 insertIndex++;
             }
+            currentChild++;
            
         } 
         public Token searchForToken(String token){
@@ -68,6 +69,8 @@ class CharTreeGraph{
                             }else{
                                 return null;
                             }
+                        }else{
+                            return res;
                         }
                     }
                 }
@@ -89,6 +92,8 @@ class CharTreeGraph{
         node.addStringToGraph(str.tokenName, str);
     }
     Token searchForToken(String tokenStr){
+        if(tokenStr.length()!=0){
         	return node.searchForToken(tokenStr);
+        }else return null;
     }
 }
