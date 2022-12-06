@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -24,29 +28,31 @@ public class Text_Tab {
 
     public boolean[] unsaved_changes = {false}; // make bool pointer
     public String file_name = "";
-    JTextPane text_area;
-    int tab_index;
-    JTabbedPane tab_manager;
-    Window root;
+    public JTextPane text_area;
+    public int tab_index;
+    public JTabbedPane tab_manager;
+    public TextHighlighter highlighter;
+    public Window root;
+    public int lastDot;
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
         this.root = root;
         this.tab_manager = ptab_manager;
         System.out.println(pfile_name);
         this.text_area = new JTextPane();
         this.text_area.setFont(new Font("Hack", Font.PLAIN, 13));
-
+        highlighter= new TextHighlighter(text_area);
         JTextPane line_numbers = new JTextPane();
         line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
 
         this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers,unsaved_changes)); 
-        this.text_area.addCaretListener(new TextHighlighter(text_area));
+        //this.text_area.addCaretListener(new TextHighlighter(text_area));
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
         scroll_plane.getViewport().add(this.text_area);
         scroll_plane.setRowHeaderView(line_numbers);
-
+        
         this.tab_manager.add("New", scroll_plane);
 
         this.tab_index = this.tab_manager.getTabCount()-1;
@@ -83,7 +89,48 @@ public class Text_Tab {
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
+    public void checkForUpdates(){
+        String thisLine;
 
+        //get current line
+        String text= this.text_area.getText();
+        int firstIndex=0;
+        int lastIndex=text.length();
+        int dotPos=this.text_area.getCaret().getDot();
+        for(int i=dotPos; i<text.length();i++){
+            if(text.charAt(i)=='\n'){
+                lastIndex=i;
+                break;
+            } 
+        }
+        
+        for(int i=dotPos-1;i>=0;i--){
+            
+            if(text.charAt(i)=='\n'){
+                firstIndex=i;
+                break;
+            }
+        } 
+        if(firstIndex>=lastIndex)return;
+        StyledDocument sDoc=this.text_area.getStyledDocument();
+        thisLine= text.substring(firstIndex, lastIndex);
+        CharTreeGraph graph= highlighter.getGraph();
+        for(int i=0; i<thisLine.length();i++){
+            Token t= graph.searchForToken(thisLine.substring(i, thisLine.length()-1));
+            if(t!=null){
+                SimpleAttributeSet colorAttributeSet=new SimpleAttributeSet();
+                StyleConstants.setForeground(colorAttributeSet,new Color(t.color));
+                StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
+                StyleConstants.setUnderline(colorAttributeSet, Boolean.FALSE );
+                StyleConstants.setBold(colorAttributeSet, false);
+                int startIndex= firstIndex+i;
+                sDoc.setCharacterAttributes(startIndex,t.tokenName.length(),colorAttributeSet,true);
+                i+=t.tokenName.length()-1;
+            }
+
+        }
+
+    }
     public void open_file(String pfile_name) {
         if (new Filesystem().does_file_exist(pfile_name)) {
             this.file_name = pfile_name;
