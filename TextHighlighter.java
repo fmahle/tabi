@@ -1,11 +1,12 @@
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 public class TextHighlighter implements CaretListener{
     private CharTreeGraph tokenGraph;
-    private JTextArea area;
-    public TextHighlighter(JTextArea area){
+    private JTextPane area;
+    public TextHighlighter(JTextPane area){
         tokenGraph=new CharTreeGraph();
         tokenGraph.addStringToGraph("null");
         tokenGraph.addStringToGraph("uwu");

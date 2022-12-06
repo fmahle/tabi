@@ -8,11 +8,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Text_Tab {
-<<<<<<< HEAD
-    boolean unsaved_changes = false;
-    String file_name = "";
     
-=======
+    
     public class MyCloseActionHandler implements ActionListener {
         //Text_Tab tab;
         //
@@ -25,10 +22,9 @@ public class Text_Tab {
         }
     }
 
-    public boolean[] unsaved_changes = {false}; // bools are immutable yet arrays are
+    public boolean[] unsaved_changes = {false}; // make bool pointer
     public String file_name = "";
->>>>>>> 24da22930ce955963a5dbd5d3dc153e7ea875905
-    JTextArea text_area;
+    JTextPane text_area;
     int tab_index;
     JTabbedPane tab_manager;
     Window root;
@@ -36,19 +32,16 @@ public class Text_Tab {
         this.root = root;
         this.tab_manager = ptab_manager;
         System.out.println(pfile_name);
-        this.text_area = new JTextArea();
+        this.text_area = new JTextPane();
         this.text_area.setFont(new Font("Hack", Font.PLAIN, 13));
 
-        JTextArea line_numbers = new JTextArea();
+        JTextPane line_numbers = new JTextPane();
         line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
 
-<<<<<<< HEAD
-        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers));
+        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers,unsaved_changes)); 
         this.text_area.addCaretListener(new TextHighlighter(text_area));
-=======
->>>>>>> 24da22930ce955963a5dbd5d3dc153e7ea875905
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
         scroll_plane.getViewport().add(this.text_area);
@@ -80,9 +73,7 @@ public class Text_Tab {
         btnClose.addActionListener(new MyCloseActionHandler());
         */
 
-        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
-        this.text_area.addCaretListener(new TextHighlighter());
-
+       
         if (pfile_name != "") {
             open_file(pfile_name);
         }

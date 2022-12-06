@@ -8,11 +8,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Line_Number_Inserter implements DocumentListener {
-    private JTextArea text, line_numbers;
+    private JTextPane text, line_numbers;
     private int lineCount;
     private boolean[] unsaved_changes;
  
-    Line_Number_Inserter(JTextArea ptext, JTextArea pline_numbers, boolean[] punsaved_changes) {
+    Line_Number_Inserter(JTextPane ptext, JTextPane pline_numbers, boolean[] punsaved_changes) {
         this.text = ptext;
         this.line_numbers = pline_numbers;
         this.unsaved_changes = punsaved_changes;
