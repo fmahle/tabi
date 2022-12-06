@@ -57,8 +57,12 @@ public class TextHighlighter implements CaretListener{
         for(int i=0; i<thisLine.length();i++){
             Token t= tokenGraph.searchForToken(thisLine.substring(i, thisLine.length()-1));
             if(t!=null){
+                //TODO: change location to outside doc listener
                 SimpleAttributeSet colorAttributeSet=new SimpleAttributeSet();
                 StyleConstants.setForeground(colorAttributeSet,new Color(t.color));
+                StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
+                StyleConstants.setUnderline(colorAttributeSet, Boolean.FALSE );
+                StyleConstants.setBold(colorAttributeSet, true);
                 sDoc.setCharacterAttributes(firstIndex+i,t.tokenName.length(),colorAttributeSet,true);
                 i+=t.tokenName.length()-1;
             }
