@@ -1,11 +1,12 @@
 class CharTreeGraph{
+
     class CharTreeNode{
         public CharTreeNode[] children;     
         public char c;
         public boolean isEnd;
-        public String key;
+        public Token key;
         public int currentChild;
-        public CharTreeNode(char c,boolean isEnd,String key){
+        public CharTreeNode(char c,boolean isEnd,Token key){
             this.c=c;
             this.isEnd=isEnd;
             children= new CharTreeNode[16];
@@ -14,7 +15,7 @@ class CharTreeGraph{
                 this.key=key;
             }
         }
-        void addStringToGraph(String str,String key){
+        void addStringToGraph(String str,Token key){
             boolean hasFound= false;
             
             for(int i=0; i<currentChild;i++){
@@ -47,7 +48,7 @@ class CharTreeGraph{
             }
            
         } 
-        public String searchForToken(String token){
+        public Token searchForToken(String token){
             for(int i=0; i<this.currentChild;i++){
                 
                 if(children[i].c==token.charAt(0)){
@@ -60,7 +61,7 @@ class CharTreeGraph{
                         }
                     }else{
                         token=token.substring(1);
-                        String res= children[i].searchForToken(token);
+                        Token res= children[i].searchForToken(token);
                         if(res==null){
                             if(this.isEnd){
                                 return this.key;
@@ -84,10 +85,10 @@ class CharTreeGraph{
         node= new CharTreeNode('a', false, null);
 
     }
-    void addStringToGraph(String str){
-        node.addStringToGraph(str, str);
+    void addTokenToGraph(Token str){
+        node.addStringToGraph(str.tokenName, str);
     }
-    String searchForToken(String token){
-        	return node.searchForToken(token);
+    Token searchForToken(String tokenStr){
+        	return node.searchForToken(tokenStr);
     }
 }
