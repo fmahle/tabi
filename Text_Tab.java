@@ -45,7 +45,7 @@ public class Text_Tab {
         line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
-
+        lastDot=0;
         this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers,unsaved_changes)); 
         //this.text_area.addCaretListener(new TextHighlighter(text_area));
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
@@ -97,6 +97,7 @@ public class Text_Tab {
         int firstIndex=0;
         int lastIndex=text.length();
         int dotPos=this.text_area.getCaret().getDot();
+        if(lastDot!=dotPos){
         for(int i=dotPos; i<text.length();i++){
             if(text.charAt(i)=='\n'){
                 lastIndex=i;
@@ -129,7 +130,7 @@ public class Text_Tab {
             }
 
         }
-
+        }
     }
     public void open_file(String pfile_name) {
         if (new Filesystem().does_file_exist(pfile_name)) {
