@@ -169,10 +169,15 @@ public class Text_Tab {
                         }else if(nextVariable&&text.charAt(i)==' '){
 
                             if(newVar.length()>1){
-                                this.highlighter.getGraph().addTokenToGraph(new Token());
+                                this.highlighter.getGraph().addTokenToGraph(new Token(newVar,0x000022FF,Token.TokenType.TYPE_VARIABLE));
                             }else{
                                 newVar=null;
                             }
+                            nextVariable=false;
+                            isDatatype=false;
+                        }else{
+                            nextVariable=false;
+                            isDatatype=false;
                         }
                         
                     
