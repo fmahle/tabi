@@ -8,7 +8,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import Token.TokenType;
 
 import java.awt.*;
 import java.awt.event.*;
