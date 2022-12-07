@@ -44,6 +44,7 @@ public class Window {
 
 
         this.root.setSize(800, 600);
+        this.root.setLocationRelativeTo(null);
 
         JMenuBar menubar = new JMenuBar();
         JMenu file_menu = new JMenu();
