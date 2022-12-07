@@ -35,6 +35,8 @@ public class Text_Tab {
     public TextHighlighter highlighter;
     public Window root;
     public int lastDot;
+
+                    
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
         this.root = root;
         this.tab_manager = ptab_manager;
@@ -139,13 +141,13 @@ public class Text_Tab {
                     StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
                     StyleConstants.setUnderline(colorAttributeSet, false );
                     StyleConstants.setBold(colorAttributeSet, false);
-                
-                    sDoc.setCharacterAttributes(firstIndex,lastIndex-(firstIndex+lineCounter),colorAttributeSet,true);
-                    CharTreeGraph graph= highlighter.getGraph();
                     boolean isDatatype=false;
                     boolean nextVariable=false;
                     String newVar=null;
-                    for(int i=firstIndex+lineCounter; i<=lastIndex ; i++){
+                    sDoc.setCharacterAttributes(firstIndex,lastIndex-(firstIndex+lineCounter),colorAttributeSet,true);
+                    CharTreeGraph graph= highlighter.getGraph();
+                    for(int i=firstIndex+lineCounter; i<lastIndex ; i++){
+                        if(!isDatatype){
                         Token t= graph.searchForToken(text.substring(i,lastIndex ));
                         if(t!=null){
                             StyleConstants.setForeground(colorAttributeSet,new Color(t.fontColor));
@@ -160,15 +162,16 @@ public class Text_Tab {
                             }
 
                             i+=t.tokenName.length()-1;
-                        }else if(isDatatype&&text.charAt(i)==' '){
+                        }
+                    }else if((isDatatype&&text.charAt(i)==' ')&&!nextVariable){
                             nextVariable=true;
                             newVar=new String();
                         }else if(nextVariable&&text.charAt(i)!=' '){
                             newVar+=text.charAt(i);
-                        }else if(nextVariable&&text.charAt(i)==' '){
+                        }else if(nextVariable&&(text.charAt(i)==' '||text.charAt(i)=='\n')){
 
                             if(newVar.length()>1){
-                                this.highlighter.getGraph().addTokenToGraph(new Token(newVar,0x000022FF,Token.TokenType.TYPE_VARIABLE));
+                                this.highlighter.getGraph().addTokenToGraph(new Token(newVar,0x0000FFFF,Token.TokenType.TYPE_VARIABLE));
                             }else{
                                 newVar=null;
                             }

@@ -28,7 +28,7 @@ class CharTreeGraph{
                 }
             }
             if(!hasFound){
-                int insertIndex=currentChild;
+                 
                 if(currentChild==children.length){
 
                 
@@ -41,14 +41,14 @@ class CharTreeGraph{
                     
                 }
                 
-                children[insertIndex]= new CharTreeNode(str.charAt(0),str.length()==1,key);
+                children[currentChild]= new CharTreeNode(str.charAt(0),str.length()==1,key);
                 if(str.length()!=1){
                     str=str.substring(1);
-                    children[insertIndex].addStringToGraph(str, key);
+                    children[currentChild].addStringToGraph(str, key);
                 }
-                insertIndex++;
+                currentChild++;
             }
-            currentChild++;
+            
            
         } 
         public Token searchForToken(String token){
