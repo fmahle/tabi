@@ -90,48 +90,78 @@ public class Text_Tab {
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
     public void checkForUpdates(){
-        String thisLine;
+       
+
 
         //get current line
         String text= this.text_area.getText();
+       // System.out.println(text);
         int firstIndex=0;
         int lastIndex=text.length();
         int dotPos=this.text_area.getCaret().getDot();
-        if(lastDot!=dotPos){
-        for(int i=dotPos; i<text.length();i++){
-            if(text.charAt(i)=='\n'){
-                lastIndex=i;
-                break;
-            } 
-        }
-        
-        for(int i=dotPos-1;i>=0;i--){
-            
-            if(text.charAt(i)=='\n'){
-                firstIndex=i;
-                break;
-            }
-        } 
-        if(firstIndex>=lastIndex)return;
-        StyledDocument sDoc=this.text_area.getStyledDocument();
-        thisLine= text.substring(firstIndex, lastIndex);
-        CharTreeGraph graph= highlighter.getGraph();
-        for(int i=0; i<thisLine.length();i++){
-            Token t= graph.searchForToken(thisLine.substring(i, thisLine.length()-1));
-            if(t!=null){
-                SimpleAttributeSet colorAttributeSet=new SimpleAttributeSet();
-                StyleConstants.setForeground(colorAttributeSet,new Color(t.color));
-                StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
-                StyleConstants.setUnderline(colorAttributeSet, Boolean.FALSE );
-                StyleConstants.setBold(colorAttributeSet, false);
-                int startIndex= firstIndex+i;
-                sDoc.setCharacterAttributes(startIndex,t.tokenName.length(),colorAttributeSet,true);
-                i+=t.tokenName.length()-1;
-            }
+        try {
+        String tex2= text_area.getDocument().getText(0, text_area.getDocument().getLength());
+        }catch(Exception e){
 
         }
-        }
+        
+        if(lastDot!=dotPos){
+            lastDot=dotPos;
+            try{
+            if(text.charAt(dotPos-1)!='\n'){
+                for(int i=dotPos; i<text.length();i++){
+                    if(text.charAt(i)=='\n'){
+                            lastIndex=i;
+                            break;
+                        } 
+                    }
+                
+                    for(int i=dotPos-1;i>=0;i--){
+                    
+                        if(text.charAt(i)=='\n'){
+                            //character after backslash N
+                            firstIndex=i+1;
+                            break;
+                        }
+                    } 
+                    if(firstIndex>=lastIndex)return;
+                    StyledDocument sDoc=this.text_area.getStyledDocument();
+                    
+                    //reset Style:
+                    SimpleAttributeSet colorAttributeSet=new SimpleAttributeSet();
+                    StyleConstants.setForeground(colorAttributeSet,Color.BLACK);
+                    StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
+                    StyleConstants.setUnderline(colorAttributeSet, false );
+                    StyleConstants.setBold(colorAttributeSet, false);
+                
+                    sDoc.setCharacterAttributes(firstIndex,lastIndex-firstIndex,colorAttributeSet,true);
+                    CharTreeGraph graph= highlighter.getGraph();
+                    for(int i=firstIndex; i<=lastIndex; i++){
+                        Token t= graph.searchForToken(text.substring(i,lastIndex));
+                        if(t!=null){
+                            StyleConstants.setForeground(colorAttributeSet,new Color(t.color));
+                            StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
+                            StyleConstants.setUnderline(colorAttributeSet, false );
+                            StyleConstants.setBold(colorAttributeSet, false);
+                            int lineCounter=0;
+                            for(int k=0; k<lastIndex-1;k++){
+                                if(text.charAt(k)=='\n'){
+                                    lineCounter++;
+                                }
+                            }
+                            sDoc.setCharacterAttributes(i-lineCounter,t.tokenName.length(),colorAttributeSet,true);
+                            i+=t.tokenName.length()-1;
+                        }
+                    
+                    }
+                }
+            
+    }catch(Exception e){
+
     }
+}
+    
+}
     public void open_file(String pfile_name) {
         if (new Filesystem().does_file_exist(pfile_name)) {
             this.file_name = pfile_name;
