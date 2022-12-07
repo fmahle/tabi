@@ -40,14 +40,14 @@ public class Text_Tab {
         System.out.println(pfile_name);
         this.text_area = new JTextPane();
         this.text_area.setFont(new Font("Hack", Font.PLAIN, 13));
-        highlighter= new TextHighlighter(text_area);
+        highlighter= new TextHighlighter(this);
         JTextPane line_numbers = new JTextPane();
         line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
         lastDot=0;
         this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers,unsaved_changes)); 
-        //this.text_area.addCaretListener(new TextHighlighter(text_area));
+        this.text_area.getDocument().addDocumentListener(highlighter);
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
         scroll_plane.getViewport().add(this.text_area);

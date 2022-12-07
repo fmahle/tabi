@@ -20,7 +20,9 @@ public class Window {
     Dictionary tabs; //https://www.javatpoint.com/dictionary-class-in-java
     public Window(String[] args) {
         this.tabs = new Hashtable();
-
+        /*int x=0xFFFFFFFF;
+        char a =(char)(x&0x0000000E);
+        char b =(char)((x>>5)&0x0000000E);*/ 
         this.root = new JFrame("Tabi");
 
         this.root.setIconImage(Toolkit.getDefaultToolkit().getImage("icon"));
