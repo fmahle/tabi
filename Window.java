@@ -33,11 +33,11 @@ public class Window {
         this.root.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                do {
-                    if (!selab().close_file()) {
+                while (tab_manager.getTabCount() != 0) {
+                    if (!selab().close_file(false)) {
                         return;
                     }
-                } while (tab_manager.getTabCount() != 0);
+                }
                 root.setVisible(false);
                 System.exit(0);
             }
@@ -145,10 +145,7 @@ public class Window {
         Action action6 = new AbstractAction("Close Current Document") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selab().close_file();
-                if (tab_manager.getTabCount() == 0) {
-                    new_tab("");
-                }
+                selab().close_file(true);
             }
         };
 
@@ -194,36 +191,6 @@ public class Window {
 
         this.tab_manager = new JTabbedPane();
 
-        /*
-
-        String title = "Ignore this Tab";
-        JScrollPane tabBody = new JScrollPane(new JTextArea());
-
-        this.tab_manager.addTab(title, tabBody);
-        int index = this.tab_manager.indexOfTab(title);
-
-        JPanel pnlTab = new JPanel(new GridBagLayout());
-
-        JLabel lblTitle = new JLabel(title);
-        JButton btnClose = new JButton("x");
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1;
-
-        pnlTab.add(lblTitle, gbc);
-
-        gbc.gridx++;
-        gbc.weightx = 0;
-        pnlTab.add(btnClose, gbc);
-
-        this.tab_manager.setTabComponentAt(index, pnlTab);
-
-        btnClose.addActionListener(new MyCloseActionHandler());
-
-        *////////////////////////
-
         if (args.length == 0) {
             new_tab("");
         }
@@ -232,6 +199,8 @@ public class Window {
                 new_tab(file_name);
             }
         }
+
+        //TODO Fix this shit:
 
         //this.tab_manager.addChangeListener(new ChangeListener() {
         //    public void stateChanged(ChangeEvent e) {
@@ -283,7 +252,7 @@ public class Window {
         }
     }
 
-    private Text_Tab new_tab(String file_name) {
+    public Text_Tab new_tab(String file_name) {
         Text_Tab temp = new Text_Tab(this.tab_manager, this, file_name);
         tabs.put(temp.get_index(), temp);
         return temp;

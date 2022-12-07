@@ -18,14 +18,8 @@ public class Text_Tab {
     
     
     public class MyCloseActionHandler implements ActionListener {
-        //Text_Tab tab;
-        //
-        //public MyCloseActionHandler(Text_Tab ptab) {
-        //    this.tab = ptab;
-        //}
-
         public void actionPerformed(ActionEvent evt) {
-            close_file();
+            close_file(true);
         }
     }
 
@@ -38,6 +32,7 @@ public class Text_Tab {
     public TextHighlighter highlighter;
     public Window root;
     public int lastDot;
+    JLabel lblTitle;
 
                     
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
@@ -63,18 +58,23 @@ public class Text_Tab {
 
         this.tab_index = this.tab_manager.getTabCount()-1;
 
-        /*
+        //*
         JPanel pnlTab = new JPanel(new GridBagLayout());
+        pnlTab.setOpaque(false);
 
-        JLabel lblTitle = new JLabel("New");
-        JButton btnClose = new JButton("x");
+        this.lblTitle = new JLabel("New ");
+
+        ImageIcon xicon = new ImageIcon("xicon");
+        JButton btnClose = new JButton("", xicon);
+        btnClose.setBorder(BorderFactory.createEmptyBorder());
+        //btnClose.setRolloverIcon(xicon);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1;
 
-        pnlTab.add(lblTitle, gbc);
+        pnlTab.add(this.lblTitle, gbc);
 
         gbc.gridx++;
         gbc.weightx = 0;
@@ -83,7 +83,7 @@ public class Text_Tab {
         this.tab_manager.setTabComponentAt(this.tab_index, pnlTab);
 
         btnClose.addActionListener(new MyCloseActionHandler());
-        */
+        //*/
 
        
         if (pfile_name != "") {
@@ -192,6 +192,7 @@ public class Text_Tab {
             }
         }
     }
+
     private void update_language() {
         if (Pattern.compile("[\\/]*.java", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
             this.program = "java";
@@ -204,7 +205,8 @@ public class Text_Tab {
     public void open_file(String pfile_name) {
         if (new Filesystem().does_file_exist(pfile_name)) {
             this.file_name = pfile_name;
-            this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            //this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            lblTitle.setText(new File(this.file_name).getName() + " ");
             this.text_area.setText(new Filesystem().read(this.file_name));
             this.unsaved_changes[0] = false;
             update_language();
@@ -250,7 +252,8 @@ public class Text_Tab {
                 return;
             }
             update_language();
-            this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            //this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            lblTitle.setText(new File(this.file_name).getName() + " ");
         }
         new Filesystem().write(this.file_name, this.text_area.getText());
         this.unsaved_changes[0] = false;
@@ -282,7 +285,7 @@ public class Text_Tab {
         catch (IOException e) {}
         catch (InterruptedException e) {}
     }
-    public boolean close_file() {
+    public boolean close_file(boolean respawn) {
         if (this.unsaved_changes[0]) {
             int reply = JOptionPane.showConfirmDialog(null, "Do you want to save this document? ", "Save" + this.file_name + " ?", JOptionPane.YES_NO_CANCEL_OPTION);
 
@@ -292,6 +295,10 @@ public class Text_Tab {
         }
 
         this.tab_manager.remove(this.tab_index);
+
+        if (respawn && tab_manager.getTabCount() == 0) {
+            this.root.new_tab("");
+        }
 
         if (this.file_name != "") {
             boolean file_already_in_list = false;
