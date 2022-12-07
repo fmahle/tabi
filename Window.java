@@ -13,6 +13,7 @@ public class Window {
     JMenuItem save_file;
     JMenuItem save_as;
     JMenuItem pyxe; //python execute
+    JMenuItem cho_lan;
     JMenuItem close_file;
     JMenuItem[] recent_files;
     JFrame root;
@@ -77,6 +78,7 @@ public class Window {
         this.save_as = new JMenuItem();
         this.close_file = new JMenuItem();
         this.pyxe = new JMenuItem();
+        this.cho_lan = new JMenuItem();
 
 
         Action action1 = new AbstractAction("New File") {
@@ -165,6 +167,17 @@ public class Window {
         pyxe.setAction(action7);
 
 
+        Action actiona = new AbstractAction("Choose language") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selab().choose_language();
+            }
+        };
+
+        actiona.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_L);
+        cho_lan.setAction(actiona);
+
+
         file_menu.add(new_file);
         file_menu.add(open_file);
         file_menu.add(open_recent);
@@ -173,6 +186,7 @@ public class Window {
         file_menu.add(close_file);
 
         execution_menu.add(pyxe);
+        execution_menu.add(cho_lan);
 
         menubar.add(file_menu);
         menubar.add(execution_menu);
