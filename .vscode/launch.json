@@ -5,6 +5,13 @@
             "name": "Launch main",
             "request": "launch",
             "mainClass": "main",
+            "projectName": "tabi_ae8c278f"
+        },
+        {
+            "type": "java",
+            "name": "Launch main",
+            "request": "launch",
+            "mainClass": "main",
             "projectName": "tabi_9cb74693"
         },
         {

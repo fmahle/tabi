@@ -11,6 +11,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.AttributeSet.ColorAttribute;
 import javax.swing.text.StyleConstants.ColorConstants;
+
 import java.awt.Color;
 public class TextHighlighter implements DocumentListener{
     private CharTreeGraph tokenGraph;
@@ -19,9 +20,9 @@ public class TextHighlighter implements DocumentListener{
     public TextHighlighter(Text_Tab tab){
         tokenGraph=new CharTreeGraph();
         tokens=new Token[2];
-        tokens[0]= new Token("null",0x00FF0000);
-        tokens[1]=new Token("uwu",0x000000FF);
-
+        tokens[0]= new Token("null",0x00FF0000,Token.TokenType.TYPE_DATATYPE);
+        tokens[1]=new Token("uwu",0x000000FF,Token.TokenType.TYPE_DATATYPE);
+        
         tokenGraph.addTokenToGraph(tokens[0]);
         tokenGraph.addTokenToGraph(tokens[1]);
         this.tab=tab;

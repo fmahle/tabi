@@ -8,6 +8,8 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import Token.TokenType;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -100,8 +102,8 @@ public class Text_Tab {
         int lastIndex=text.length();
         int dotPos=this.text_area.getCaret().getDot();
     
-        System.out.println("dotPos: "+dotPos);
-        System.out.println("totalLength: "+this.text_area.getText().length());
+        //System.out.println("dotPos: "+dotPos);
+        //System.out.println("totalLength: "+this.text_area.getText().length());
   
         if(lastDot!=dotPos){
             lastDot=dotPos;
@@ -141,17 +143,38 @@ public class Text_Tab {
                 
                     sDoc.setCharacterAttributes(firstIndex,lastIndex-(firstIndex+lineCounter),colorAttributeSet,true);
                     CharTreeGraph graph= highlighter.getGraph();
+                    boolean isDatatype=false;
+                    boolean nextVariable=false;
+                    String newVar=null;
                     for(int i=firstIndex+lineCounter; i<=lastIndex ; i++){
                         Token t= graph.searchForToken(text.substring(i,lastIndex ));
                         if(t!=null){
-                            StyleConstants.setForeground(colorAttributeSet,new Color(t.color));
-                            StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
-                            StyleConstants.setUnderline(colorAttributeSet, false );
-                            StyleConstants.setBold(colorAttributeSet, false);
+                            StyleConstants.setForeground(colorAttributeSet,new Color(t.fontColor));
+                            StyleConstants.setBackground(colorAttributeSet, new Color(t.backgroundColor));
+                            StyleConstants.setUnderline(colorAttributeSet, (t.flags&0x01)==0x01 );
+                            StyleConstants.setBold(colorAttributeSet, (t.flags&0x02)==0x02);
                            
                             sDoc.setCharacterAttributes(i-lineCounter,t.tokenName.length(),colorAttributeSet,true);
+                            //check if token is datatype
+                            if(t.type==Token.TokenType.TYPE_DATATYPE){
+                                isDatatype=true;
+                            }
+
                             i+=t.tokenName.length()-1;
+                        }else if(isDatatype&&text.charAt(i)==' '){
+                            nextVariable=true;
+                            newVar=new String();
+                        }else if(nextVariable&&text.charAt(i)!=' '){
+                            newVar+=text.charAt(i);
+                        }else if(nextVariable&&text.charAt(i)==' '){
+
+                            if(newVar.length()>1){
+                                this.highlighter.getGraph().addTokenToGraph(new Token());
+                            }else{
+                                newVar=null;
+                            }
                         }
+                        
                     
                     }
                 }    

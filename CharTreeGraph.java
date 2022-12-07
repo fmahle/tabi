@@ -21,8 +21,10 @@ class CharTreeGraph{
             for(int i=0; i<currentChild;i++){
                 if(children[i].c==str.charAt(0)){
                     hasFound=true;
-                    str=str.substring(1);
-                    children[i].addStringToGraph(str, key);
+                    if(str.length()>1){
+                        str=str.substring(1);
+                        children[i].addStringToGraph(str, key);
+                    }
                 }
             }
             if(!hasFound){
