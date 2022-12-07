@@ -192,18 +192,22 @@ public class Text_Tab {
             }
         }
     }
+    private void update_language() {
+        if (Pattern.compile("[\\/]*.java", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
+            this.program = "java";
+        }
+        else if (Pattern.compile("[\\/]*.py", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
+            this.program = "python3";
+        }
+    }
+
     public void open_file(String pfile_name) {
         if (new Filesystem().does_file_exist(pfile_name)) {
             this.file_name = pfile_name;
             this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
             this.text_area.setText(new Filesystem().read(this.file_name));
             this.unsaved_changes[0] = false;
-            if (Pattern.compile("[\\/]*.java", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
-                this.program = "java";
-            }
-            else if (Pattern.compile("[\\/]*.py", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
-                this.program = "python3";
-            }
+            update_language();
         }
         else {
             JOptionPane.showMessageDialog(this.tab_manager, "This file could not be found: \n" + pfile_name);
@@ -245,6 +249,7 @@ public class Text_Tab {
             else {
                 return;
             }
+            update_language();
             this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
         }
         new Filesystem().write(this.file_name, this.text_area.getText());
@@ -290,16 +295,14 @@ public class Text_Tab {
 
         if (this.file_name != "") {
             boolean file_already_in_list = false;
+            String result = this.file_name + "\n";
             for (String file : new Filesystem().read(".recent_files").split("\n")) {
-                if (file.equals(this.file_name)) {
-                    file_already_in_list = true;
-                    return true;
+                if (new Filesystem().does_file_exist(file) && (!file.equals(this.file_name))) {
+                    result += file + "\n";
                 }
             }
-            if (!file_already_in_list) {
-                new Filesystem().write(".recent_files", this.file_name + "\n" + new Filesystem().read(".recent_files"));
-                this.root.update_recent_file_list();
-            }
+            new Filesystem().write(".recent_files", result);
+            this.root.update_recent_file_list();
         }
         return true;
     }
