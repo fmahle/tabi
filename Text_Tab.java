@@ -99,31 +99,36 @@ public class Text_Tab {
         int firstIndex=0;
         int lastIndex=text.length();
         int dotPos=this.text_area.getCaret().getDot();
-        try {
-        String tex2= text_area.getDocument().getText(0, text_area.getDocument().getLength());
-        }catch(Exception e){
-
-        }
-        
+    
+        System.out.println("dotPos: "+dotPos);
+        System.out.println("totalLength: "+this.text_area.getText().length());
+  
         if(lastDot!=dotPos){
             lastDot=dotPos;
-            try{
-            if(text.charAt(dotPos-1)!='\n'){
-                for(int i=dotPos; i<text.length();i++){
+          
+                int lineCounter=0;
+                int charCounter=0;
+                int currentLineStart=0;
+                for(int i=0; i<lastIndex;i++){
                     if(text.charAt(i)=='\n'){
-                            lastIndex=i;
-                            break;
-                        } 
-                    }
-                
-                    for(int i=dotPos-1;i>=0;i--){
-                    
-                        if(text.charAt(i)=='\n'){
-                            //character after backslash N
-                            firstIndex=i+1;
+                        lineCounter++;
+                        currentLineStart=charCounter;
+                    }else{
+                        charCounter++;
+                        if(charCounter==dotPos){
+                            firstIndex=currentLineStart;
                             break;
                         }
-                    } 
+                    }
+                }
+                for(int i=charCounter+lineCounter;i<lastIndex;i++){
+                    if(text.charAt(i)== '\n'){
+                        lastIndex=i;
+                        break;
+                    }
+                }
+
+
                     if(firstIndex>=lastIndex)return;
                     StyledDocument sDoc=this.text_area.getStyledDocument();
                     
@@ -134,32 +139,23 @@ public class Text_Tab {
                     StyleConstants.setUnderline(colorAttributeSet, false );
                     StyleConstants.setBold(colorAttributeSet, false);
                 
-                    sDoc.setCharacterAttributes(firstIndex,lastIndex-firstIndex,colorAttributeSet,true);
+                    sDoc.setCharacterAttributes(firstIndex,lastIndex-(firstIndex+lineCounter),colorAttributeSet,true);
                     CharTreeGraph graph= highlighter.getGraph();
-                    for(int i=firstIndex; i<=lastIndex; i++){
-                        Token t= graph.searchForToken(text.substring(i,lastIndex));
+                    for(int i=firstIndex+lineCounter; i<=lastIndex ; i++){
+                        Token t= graph.searchForToken(text.substring(i,lastIndex ));
                         if(t!=null){
                             StyleConstants.setForeground(colorAttributeSet,new Color(t.color));
                             StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
                             StyleConstants.setUnderline(colorAttributeSet, false );
                             StyleConstants.setBold(colorAttributeSet, false);
-                            int lineCounter=0;
-                            for(int k=0; k<lastIndex-1;k++){
-                                if(text.charAt(k)=='\n'){
-                                    lineCounter++;
-                                }
-                            }
+                           
                             sDoc.setCharacterAttributes(i-lineCounter,t.tokenName.length(),colorAttributeSet,true);
                             i+=t.tokenName.length()-1;
                         }
                     
                     }
-                }
-            
-    }catch(Exception e){
+                }    
 
-    }
-}
     
 }
     public void open_file(String pfile_name) {

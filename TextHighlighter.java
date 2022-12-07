@@ -32,6 +32,8 @@ public class TextHighlighter implements DocumentListener{
 
     @Override
     public void insertUpdate(DocumentEvent e) {
+       // System.out.println("e.offset: "+e.getOffset()+" e.length: "+e.getLength());
+
         // TODO Auto-generated method stub
         SwingUtilities.invokeLater(new Runnable(){
             @Override
@@ -46,6 +48,7 @@ public class TextHighlighter implements DocumentListener{
         // TODO Auto-generated method stub
         
         SwingUtilities.invokeLater(new Runnable(){
+          
             @Override
             public void run(){
                 tab.checkForUpdates();
