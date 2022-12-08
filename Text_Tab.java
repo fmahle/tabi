@@ -20,69 +20,95 @@ public class Text_Tab {
             close_file(true);
         }
     }
-    public class TokenAddress{
+
+    public class TokenAddress {
         public Token t;
         public int address;
     }
 
     public class TokenRegister {
         public class TokenTile {
-            public class TokenElement{
+            public class TokenElement {
                 public TokenAddress t;
                 public TokenElement next;
                 public TokenElement prev;
-                public TokenElement(TokenElement prev,TokenElement next){
-                    this.prev=prev;
-                    this.next=next;
-                    this.t= new TokenAddress();
+
+                public TokenElement(TokenElement prev, TokenElement next) {
+                    this.prev = prev;
+                    this.next = next;
+                    this.t = new TokenAddress();
                 }
             }
+
             protected TokenElement[] tokens;
             protected TokenElement currentToken;
             protected TokenElement start;
             protected TokenElement end;
+            protected TokenElement iterator;
             public TokenTile() {
-                tokens= new TokenElement[16];
-                for(int i=0; i<=16;i++){
-                    if(i<16){
-                        tokens[i]= new TokenElement(i==0?null:tokens[i-1],null);
+                tokens = new TokenElement[16];
+                for (int i = 0; i <= 16; i++) {
+                    if (i < 16) {
+                        tokens[i] = new TokenElement(i == 0 ? null : tokens[i - 1], null);
                     }
-                    if(i>0){
-                        tokens[i-1].next=tokens[i];
+                    if (i > 0) {
+                        tokens[i - 1].next = tokens[i];
                     }
-                    
+
                 }
-                
-                currentToken=tokens[0];
-                start=tokens[0];
-                end= tokens[15];
+
+                currentToken = tokens[0];
+                start = tokens[0];
+                end = tokens[15];
+                iterator=currentToken;
             }
-            public TokenAddress Iterate(){
-                if(currentToken!=null){
-                    TokenElement cTokenCopy=currentToken;
-                    currentToken=currentToken.next;
+
+            public TokenAddress Iterate() {
+                if (currentToken != null) {
+                    TokenElement cTokenCopy = currentToken;
+                    currentToken = currentToken.next;
                     return cTokenCopy.t;
 
-                }else return null;
+                } else
+                    return null;
             }
-              
-            public void resetIteration(){
-                currentToken=start;
-            }
-            void addSorted(){
 
+            public void resetIteration() {
+                iterator = start;
             }
-            void resize() {
+
+            public void addSorted(TokenAddress t) {
+                if(currentToken != null){
+                    currentToken.t=t;
+                    if(currentToken.next == null){
+                        resize();
+                    }
+                    currentToken = currentToken.next;
+                }
+            }
+            public void removeCurrentToken(){
+
+                
+            }
+            public void resize() {
                 TokenElement[] newTokens=new TokenElement[tokens.length*2];
                 int i=0;
                 for(; i<tokens.length;i++){
                     newTokens[i]=tokens[i];
                 }
-                newTokens[i]= new TokenElement(end, newTokens[i+1]);
+                newTokens[i]= new TokenElement(end, null);
+                newTokens[i-1].next=newTokens[i];
                 i++;
-                for(;i<newTokens.length;i++){
-                    newTokens[i]=new TokenElement(end, currentToken);
+                for(;i<newTokens.length+1;i++){
+                    if(i<newTokens.length){
+                    newTokens[i]=new TokenElement(newTokens[i-1], null);
+                    } 
+                    if(i>1){
+                        newTokens[i-1].next=newTokens[i];
+                    }
                 }
+                end=newTokens[newTokens.length-1];
+                tokens=newTokens;
             }
         }
 
@@ -123,7 +149,7 @@ public class Text_Tab {
 
         this.tab_index = this.tab_manager.getTabCount() - 1;
 
-        //*
+        // *
         JPanel pnlTab = new JPanel(new GridBagLayout());
         pnlTab.setOpaque(false);
 
@@ -132,7 +158,7 @@ public class Text_Tab {
         ImageIcon xicon = new ImageIcon("xicon");
         JButton btnClose = new JButton("", xicon);
         btnClose.setBorder(BorderFactory.createEmptyBorder());
-        //btnClose.setRolloverIcon(xicon);
+        // btnClose.setRolloverIcon(xicon);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -148,9 +174,8 @@ public class Text_Tab {
         this.tab_manager.setTabComponentAt(this.tab_index, pnlTab);
 
         btnClose.addActionListener(new MyCloseActionHandler());
-        //*/
+        // */
 
-       
         if (pfile_name != "") {
             open_file(pfile_name);
         }
@@ -160,100 +185,92 @@ public class Text_Tab {
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
+
     public void checkForUpdates() {
-        //get current line
+        // get current line
         String text = this.text_area.getText();
         // System.out.println(text);
         int firstIndex = 0;
         int lastIndex = text.length();
         int dotPos = this.text_area.getCaret().getDot();
 
-        //System.out.println("dotPos: "+dotPos);
-        //System.out.println("totalLength: "+this.text_area.getText().length());
-  
+        // System.out.println("dotPos: "+dotPos);
+        // System.out.println("totalLength: "+this.text_area.getText().length());
+
         if (lastDot != dotPos) {
             lastDot = dotPos;
-          
-                int lineCounter = 0;
-                int charCounter = 0;
-                int currentLineStart = 0;
-                for (int i = 0; i < lastIndex; i++) {
-                    if (text.charAt(i)=='\n'){
-                        lineCounter++;
-                        currentLineStart=charCounter;
-                    }
-                    else {
-                        charCounter++;
-                        if(charCounter == dotPos) {
-                            firstIndex = currentLineStart;
-                            break;
-                        }
-                    }
-                }
-                for (int i = charCounter + lineCounter; i < lastIndex; i++) {
-                    if (text.charAt(i) == '\n'){
-                        lastIndex=i;
+
+            int lineCounter = 0;
+            int charCounter = 0;
+            int currentLineStart = 0;
+            for (int i = 0; i < lastIndex; i++) {
+                if (text.charAt(i) == '\n') {
+                    lineCounter++;
+                    currentLineStart = charCounter;
+                } else {
+                    charCounter++;
+                    if (charCounter == dotPos) {
+                        firstIndex = currentLineStart;
                         break;
                     }
                 }
-            
-           
-            
-
-
-                if (firstIndex >= lastIndex) {
-                    return;
+            }
+            for (int i = charCounter + lineCounter; i < lastIndex; i++) {
+                if (text.charAt(i) == '\n') {
+                    lastIndex = i;
+                    break;
                 }
-                StyledDocument sDoc = this.text_area.getStyledDocument();
+            }
 
-                //reset Style:
-                SimpleAttributeSet colorAttributeSet=new SimpleAttributeSet();
-                StyleConstants.setForeground(colorAttributeSet, Color.BLACK);
-                StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
-                StyleConstants.setUnderline(colorAttributeSet, false);
-                StyleConstants.setBold(colorAttributeSet, false);
-                boolean isDatatype = false;
-                boolean nextVariable = false;
-                String newVar = null;
-                sDoc.setCharacterAttributes(firstIndex,lastIndex - (firstIndex+lineCounter),colorAttributeSet,true);
-                CharTreeGraph graph = highlighter.getGraph();
-                for(int i = firstIndex + lineCounter; i < lastIndex; i++) {
-                    if (!isDatatype) {
+            if (firstIndex >= lastIndex) {
+                return;
+            }
+            StyledDocument sDoc = this.text_area.getStyledDocument();
+
+            // reset Style:
+            SimpleAttributeSet colorAttributeSet = new SimpleAttributeSet();
+            StyleConstants.setForeground(colorAttributeSet, Color.BLACK);
+            StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
+            StyleConstants.setUnderline(colorAttributeSet, false);
+            StyleConstants.setBold(colorAttributeSet, false);
+            boolean isDatatype = false;
+            boolean nextVariable = false;
+            String newVar = null;
+            sDoc.setCharacterAttributes(firstIndex, lastIndex - (firstIndex + lineCounter), colorAttributeSet, true);
+            CharTreeGraph graph = highlighter.getGraph();
+            for (int i = firstIndex + lineCounter; i < lastIndex; i++) {
+                if (!isDatatype) {
                     Token t = graph.searchForToken(text.substring(i, lastIndex));
-                    if (t!=null) {
-                        StyleConstants.setForeground(colorAttributeSet,new Color(t.fontColor));
+                    if (t != null) {
+                        StyleConstants.setForeground(colorAttributeSet, new Color(t.fontColor));
                         StyleConstants.setBackground(colorAttributeSet, new Color(t.backgroundColor));
                         StyleConstants.setUnderline(colorAttributeSet, (t.flags & 0x01) == 0x01);
                         StyleConstants.setBold(colorAttributeSet, (t.flags & 0x02) == 0x02);
 
-                        sDoc.setCharacterAttributes(i - lineCounter,t.tokenName.length(), colorAttributeSet, true);
-                        //check if token is datatype
+                        sDoc.setCharacterAttributes(i - lineCounter, t.tokenName.length(), colorAttributeSet, true);
+                        // check if token is datatype
                         if (t.type == Token.TokenType.TYPE_DATATYPE) {
                             isDatatype = true;
                         }
 
                         i += t.tokenName.length() - 1;
                     }
-                }
-                else if ((isDatatype && text.charAt(i) == ' ') && !nextVariable){
-                        nextVariable = true;
-                        newVar = new String();
-                }
-                else if (nextVariable&&text.charAt(i) != ' '){
-                        newVar+=text.charAt(i);
-                }
-                else if (nextVariable&&(text.charAt(i) == ' ' || text.charAt(i) == '\n')) {
+                } else if ((isDatatype && text.charAt(i) == ' ') && !nextVariable) {
+                    nextVariable = true;
+                    newVar = new String();
+                } else if (nextVariable && text.charAt(i) != ' ') {
+                    newVar += text.charAt(i);
+                } else if (nextVariable && (text.charAt(i) == ' ' || text.charAt(i) == '\n')) {
 
                     if (newVar.length() > 1) {
-                            this.highlighter.getGraph().addTokenToGraph(new Token(newVar,0x0000FFFF, Token.TokenType.TYPE_VARIABLE));
-                    }
-                    else {
+                        this.highlighter.getGraph()
+                                .addTokenToGraph(new Token(newVar, 0x0000FFFF, Token.TokenType.TYPE_VARIABLE));
+                    } else {
                         newVar = null;
                     }
                     nextVariable = false;
                     isDatatype = false;
-                }
-                else {
+                } else {
                     nextVariable = false;
                     isDatatype = false;
                 }
@@ -264,8 +281,7 @@ public class Text_Tab {
     private void update_language() {
         if (Pattern.compile("[\\/]*.java", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
             this.program = "java";
-        }
-        else if (Pattern.compile("[\\/]*.py", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
+        } else if (Pattern.compile("[\\/]*.py", Pattern.CASE_INSENSITIVE).matcher(this.file_name).find()) {
             this.program = "python3";
         }
     }
@@ -273,13 +289,13 @@ public class Text_Tab {
     public void open_file(String pfile_name) {
         if (new Filesystem().does_file_exist(pfile_name)) {
             this.file_name = pfile_name;
-            //this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            // this.tab_manager.setTitleAt(this.tab_index, new
+            // File(this.file_name).getName());
             lblTitle.setText(new File(this.file_name).getName() + " ");
             this.text_area.setText(new Filesystem().read(this.file_name));
             this.unsaved_changes[0] = false;
             update_language();
-        }
-        else {
+        } else {
             JOptionPane.showMessageDialog(this.tab_manager, "This file could not be found: \n" + pfile_name);
         }
     }
@@ -289,7 +305,8 @@ public class Text_Tab {
     }
 
     public void choose_language() {
-        String temp = JOptionPane.showInputDialog(this.tab_manager, "What program should run your code?\nOnly use valid options!", this.program);
+        String temp = JOptionPane.showInputDialog(this.tab_manager,
+                "What program should run your code?\nOnly use valid options!", this.program);
         if (!("".equals(temp) || temp == null)) {
             this.program = temp;
         }
@@ -319,7 +336,8 @@ public class Text_Tab {
                 return;
             }
             update_language();
-            //this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
+            // this.tab_manager.setTitleAt(this.tab_index, new
+            // File(this.file_name).getName());
             lblTitle.setText(new File(this.file_name).getName() + " ");
         }
         new Filesystem().write(this.file_name, this.text_area.getText());
@@ -351,6 +369,7 @@ public class Text_Tab {
         } catch (InterruptedException e) {
         }
     }
+
     public boolean close_file(boolean respawn) {
         if (this.unsaved_changes[0]) {
             int reply = JOptionPane.showConfirmDialog(null, "Do you want to save this document? ",
