@@ -13,6 +13,7 @@ public class Window {
     JMenuItem save_file;
     JMenuItem save_as;
     JMenuItem pyxe; //python execute
+    JMenuItem cho_lan;
     JMenuItem close_file;
     JMenuItem[] recent_files;
     JFrame root;
@@ -32,11 +33,11 @@ public class Window {
         this.root.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                do {
-                    if (!selab().close_file()) {
+                while (tab_manager.getTabCount() != 0) {
+                    if (!selab().close_file(false)) {
                         return;
                     }
-                } while (tab_manager.getTabCount() != 0);
+                }
                 root.setVisible(false);
                 System.exit(0);
             }
@@ -77,6 +78,7 @@ public class Window {
         this.save_as = new JMenuItem();
         this.close_file = new JMenuItem();
         this.pyxe = new JMenuItem();
+        this.cho_lan = new JMenuItem();
 
 
         Action action1 = new AbstractAction("New File") {
@@ -143,10 +145,7 @@ public class Window {
         Action action6 = new AbstractAction("Close Current Document") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selab().close_file();
-                if (tab_manager.getTabCount() == 0) {
-                    new_tab("");
-                }
+                selab().close_file(true);
             }
         };
 
@@ -165,6 +164,24 @@ public class Window {
         pyxe.setAction(action7);
 
 
+        Action actiona = new AbstractAction("Choose language") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selab().choose_language();
+            }
+        };
+
+        actiona.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_L);
+        cho_lan.setAction(actiona);
+
+        new_file.setAccelerator(KeyStroke.getKeyStroke("control N"));
+        open_file.setAccelerator(KeyStroke.getKeyStroke("control O"));
+        save_file.setAccelerator(KeyStroke.getKeyStroke("control S"));
+        save_as.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
+        close_file.setAccelerator(KeyStroke.getKeyStroke("control shift C"));
+
+        pyxe.setAccelerator(KeyStroke.getKeyStroke("control E"));
+
         file_menu.add(new_file);
         file_menu.add(open_file);
         file_menu.add(open_recent);
@@ -173,42 +190,13 @@ public class Window {
         file_menu.add(close_file);
 
         execution_menu.add(pyxe);
+        execution_menu.add(cho_lan);
 
         menubar.add(file_menu);
         menubar.add(execution_menu);
         this.root.setJMenuBar(menubar);
 
         this.tab_manager = new JTabbedPane();
-
-        /*
-
-        String title = "Ignore this Tab";
-        JScrollPane tabBody = new JScrollPane(new JTextArea());
-
-        this.tab_manager.addTab(title, tabBody);
-        int index = this.tab_manager.indexOfTab(title);
-
-        JPanel pnlTab = new JPanel(new GridBagLayout());
-
-        JLabel lblTitle = new JLabel(title);
-        JButton btnClose = new JButton("x");
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1;
-
-        pnlTab.add(lblTitle, gbc);
-
-        gbc.gridx++;
-        gbc.weightx = 0;
-        pnlTab.add(btnClose, gbc);
-
-        this.tab_manager.setTabComponentAt(index, pnlTab);
-
-        btnClose.addActionListener(new MyCloseActionHandler());
-
-        *////////////////////////
 
         if (args.length == 0) {
             new_tab("");
@@ -218,6 +206,8 @@ public class Window {
                 new_tab(file_name);
             }
         }
+
+        //TODO Fix this shit:
 
         //this.tab_manager.addChangeListener(new ChangeListener() {
         //    public void stateChanged(ChangeEvent e) {
@@ -269,7 +259,7 @@ public class Window {
         }
     }
 
-    private Text_Tab new_tab(String file_name) {
+    public Text_Tab new_tab(String file_name) {
         Text_Tab temp = new Text_Tab(this.tab_manager, this, file_name);
         tabs.put(temp.get_index(), temp);
         return temp;
