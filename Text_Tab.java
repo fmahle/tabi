@@ -8,81 +8,145 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-
 import java.awt.*;
 import java.awt.event.*;
 
 public class Text_Tab {
-    
-    
+
     public class MyCloseActionHandler implements ActionListener {
-        //Text_Tab tab;
+        // Text_Tab tab;
         //
-        //public MyCloseActionHandler(Text_Tab ptab) {
-        //    this.tab = ptab;
-        //}
+        // public MyCloseActionHandler(Text_Tab ptab) {
+        // this.tab = ptab;
+        // }
 
         public void actionPerformed(ActionEvent evt) {
             close_file();
         }
     }
+    public class TokenAddress{
+        public Token t;
+        public int address;
+    }
 
-    public boolean[] unsaved_changes = {false}; // make bool pointer
-    public String file_name = "";
-    public JTextPane text_area;
-    public int tab_index;
-    public JTabbedPane tab_manager;
-    public TextHighlighter highlighter;
-    public Window root;
-    public int lastDot;
-
+    public class TokenRegister {
+        public class TokenTile {
+            public class TokenElement{
+                public TokenAddress t;
+                public TokenElement next;
+                public TokenElement prev;
+                public TokenElement(TokenElement prev,TokenElement next){
+                    this.prev=prev;
+                    this.next=next;
+                    this.t= new TokenAddress();
+                }
+            }
+            protected TokenElement[] tokens;
+            protected TokenElement currentToken;
+            protected TokenElement start;
+            protected TokenElement end;
+            public TokenTile() {
+                tokens= new TokenElement[16];
+                for(int i=0; i<=16;i++){
+                    if(i<16){
+                        tokens[i]= new TokenElement(i==0?null:tokens[i-1],null);
+                    }
+                    if(i>0){
+                        tokens[i-1].next=tokens[i];
+                    }
                     
+                }
+                
+                currentToken=tokens[0];
+                start=tokens[0];
+                end= tokens[15];
+            }
+            public TokenAddress Iterate(){
+                if(currentToken!=null){
+                    TokenElement cTokenCopy=currentToken;
+                    currentToken=currentToken.next;
+                    return cTokenCopy.t;
+
+                }else return null;
+            }
+              
+            public void resetIteration(){
+                currentToken=start;
+            }
+            void addSorted(){
+
+            }
+            void resize() {
+                TokenElement[] newTokens=new TokenElement[tokens.length*2];
+                int i=0;
+                for(; i<tokens.length;i++){
+                    newTokens[i]=tokens[i];
+                }
+                newTokens[i]= new TokenElement(end, newTokens[i+1]);
+                i++;
+                for(;i<newTokens.length;i++){
+                    newTokens[i]=new TokenElement(end, currentToken);
+                }
+            }
+        }
+
+    }
+
+    public boolean[] unsaved_changes = { false }; // make bool pointer
+    public String file_name = "";
+    private JTextPane text_area;
+    private int tab_index;
+    private JTabbedPane tab_manager;
+    private TextHighlighter highlighter;
+    private Window root;
+    private int lastDot;
+
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
         this.root = root;
         this.tab_manager = ptab_manager;
         System.out.println(pfile_name);
         this.text_area = new JTextPane();
         this.text_area.setFont(new Font("Hack", Font.PLAIN, 13));
-        highlighter= new TextHighlighter(this);
+        highlighter = new TextHighlighter(this);
         JTextPane line_numbers = new JTextPane();
         line_numbers.setFont(new Font("Hack", Font.PLAIN, 13));
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
-        lastDot=0;
-        this.text_area.getDocument().addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers,unsaved_changes)); 
+        lastDot = 0;
+        this.text_area.getDocument()
+                .addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
         this.text_area.getDocument().addDocumentListener(highlighter);
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
 
         scroll_plane.getViewport().add(this.text_area);
         scroll_plane.setRowHeaderView(line_numbers);
-        
+
         this.tab_manager.add("New", scroll_plane);
 
-        this.tab_index = this.tab_manager.getTabCount()-1;
+        this.tab_index = this.tab_manager.getTabCount() - 1;
 
         /*
-        JPanel pnlTab = new JPanel(new GridBagLayout());
+         * JPanel pnlTab = new JPanel(new GridBagLayout());
+         * 
+         * JLabel lblTitle = new JLabel("New");
+         * JButton btnClose = new JButton("x");
+         * 
+         * GridBagConstraints gbc = new GridBagConstraints();
+         * gbc.gridx = 0;
+         * gbc.gridy = 0;
+         * gbc.weightx = 1;
+         * 
+         * pnlTab.add(lblTitle, gbc);
+         * 
+         * gbc.gridx++;
+         * gbc.weightx = 0;
+         * pnlTab.add(btnClose, gbc);
+         * 
+         * this.tab_manager.setTabComponentAt(this.tab_index, pnlTab);
+         * 
+         * btnClose.addActionListener(new MyCloseActionHandler());
+         */
 
-        JLabel lblTitle = new JLabel("New");
-        JButton btnClose = new JButton("x");
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1;
-
-        pnlTab.add(lblTitle, gbc);
-
-        gbc.gridx++;
-        gbc.weightx = 0;
-        pnlTab.add(btnClose, gbc);
-
-        this.tab_manager.setTabComponentAt(this.tab_index, pnlTab);
-
-        btnClose.addActionListener(new MyCloseActionHandler());
-        */
-
-       
         if (pfile_name != "") {
             open_file(pfile_name);
         }
@@ -92,110 +156,108 @@ public class Text_Tab {
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
-    public void checkForUpdates(){
-       
 
+    public void checkForUpdates() {
 
-        //get current line
-        String text= this.text_area.getText();
-       // System.out.println(text);
-        int firstIndex=0;
-        int lastIndex=text.length();
-        int dotPos=this.text_area.getCaret().getDot();
-    
-        //System.out.println("dotPos: "+dotPos);
-        //System.out.println("totalLength: "+this.text_area.getText().length());
-  
-        if(lastDot!=dotPos){
-            lastDot=dotPos;
-          
-                int lineCounter=0;
-                int charCounter=0;
-                int currentLineStart=0;
-                for(int i=0; i<lastIndex;i++){
-                    if(text.charAt(i)=='\n'){
-                        lineCounter++;
-                        currentLineStart=charCounter;
-                    }else{
-                        charCounter++;
-                        if(charCounter==dotPos){
-                            firstIndex=currentLineStart;
-                            break;
-                        }
-                    }
-                }
-                for(int i=charCounter+lineCounter;i<lastIndex;i++){
-                    if(text.charAt(i)== '\n'){
-                        lastIndex=i;
+        // get current line
+        String text = this.text_area.getText();
+        // System.out.println(text);
+        int firstIndex = 0;
+        int lastIndex = text.length();
+        int dotPos = this.text_area.getCaret().getDot();
+
+        // System.out.println("dotPos: "+dotPos);
+        // System.out.println("totalLength: "+this.text_area.getText().length());
+
+        if (lastDot != dotPos) {
+            lastDot = dotPos;
+
+            int lineCounter = 0;
+            int charCounter = 0;
+            int currentLineStart = 0;
+            for (int i = 0; i < lastIndex; i++) {
+                if (text.charAt(i) == '\n') {
+                    lineCounter++;
+                    currentLineStart = charCounter;
+                } else {
+                    charCounter++;
+                    if (charCounter == dotPos) {
+                        firstIndex = currentLineStart;
                         break;
                     }
                 }
+            }
+            for (int i = charCounter + lineCounter; i < lastIndex; i++) {
+                if (text.charAt(i) == '\n') {
+                    lastIndex = i;
+                    break;
+                }
+            }
 
+            if (firstIndex >= lastIndex)
+                return;
+            StyledDocument sDoc = this.text_area.getStyledDocument();
 
-                    if(firstIndex>=lastIndex)return;
-                    StyledDocument sDoc=this.text_area.getStyledDocument();
-                    
-                    //reset Style:
-                    SimpleAttributeSet colorAttributeSet=new SimpleAttributeSet();
-                    StyleConstants.setForeground(colorAttributeSet,Color.BLACK);
-                    StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
-                    StyleConstants.setUnderline(colorAttributeSet, false );
-                    StyleConstants.setBold(colorAttributeSet, false);
-                    boolean isDatatype=false;
-                    boolean nextVariable=false;
-                    String newVar=null;
-                    sDoc.setCharacterAttributes(firstIndex,lastIndex-(firstIndex+lineCounter),colorAttributeSet,true);
-                    CharTreeGraph graph= highlighter.getGraph();
-                    for(int i=firstIndex+lineCounter; i<lastIndex ; i++){
-                        if(!isDatatype){
-                        Token t= graph.searchForToken(text.substring(i,lastIndex ));
-                        if(t!=null){
-                            StyleConstants.setForeground(colorAttributeSet,new Color(t.fontColor));
-                            StyleConstants.setBackground(colorAttributeSet, new Color(t.backgroundColor));
-                            StyleConstants.setUnderline(colorAttributeSet, (t.flags&0x01)==0x01 );
-                            StyleConstants.setBold(colorAttributeSet, (t.flags&0x02)==0x02);
-                           
-                            sDoc.setCharacterAttributes(i-lineCounter,t.tokenName.length(),colorAttributeSet,true);
-                            //check if token is datatype
-                            if(t.type==Token.TokenType.TYPE_DATATYPE){
-                                isDatatype=true;
-                            }
+            // reset Style:
+            SimpleAttributeSet colorAttributeSet = new SimpleAttributeSet();
+            StyleConstants.setForeground(colorAttributeSet, Color.BLACK);
+            StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
+            StyleConstants.setUnderline(colorAttributeSet, false);
+            StyleConstants.setBold(colorAttributeSet, false);
+            boolean isDatatype = false;
+            boolean nextVariable = false;
+            String newVar = null;
+            sDoc.setCharacterAttributes(firstIndex, lastIndex - (firstIndex + lineCounter), colorAttributeSet, true);
+            CharTreeGraph graph = highlighter.getGraph();
+            for (int i = firstIndex + lineCounter; i < lastIndex; i++) {
+                if (!isDatatype) {
+                    Token t = graph.searchForToken(text.substring(i, lastIndex));
+                    if (t != null) {
+                        StyleConstants.setForeground(colorAttributeSet, new Color(t.fontColor));
+                        StyleConstants.setBackground(colorAttributeSet, new Color(t.backgroundColor));
+                        StyleConstants.setUnderline(colorAttributeSet, (t.flags & 0x01) == 0x01);
+                        StyleConstants.setBold(colorAttributeSet, (t.flags & 0x02) == 0x02);
 
-                            i+=t.tokenName.length()-1;
+                        sDoc.setCharacterAttributes(i - lineCounter, t.tokenName.length(), colorAttributeSet, true);
+                        // check if token is datatype
+                        if (t.type == Token.TokenType.TYPE_DATATYPE) {
+                            isDatatype = true;
                         }
-                    }else if((isDatatype&&text.charAt(i)==' ')&&!nextVariable){
-                            nextVariable=true;
-                            newVar=new String();
-                        }else if(nextVariable&&text.charAt(i)!=' '){
-                            newVar+=text.charAt(i);
-                        }else if(nextVariable&&(text.charAt(i)==' '||text.charAt(i)=='\n')){
 
-                            if(newVar.length()>1){
-                                this.highlighter.getGraph().addTokenToGraph(new Token(newVar,0x0000FFFF,Token.TokenType.TYPE_VARIABLE));
-                            }else{
-                                newVar=null;
-                            }
-                            nextVariable=false;
-                            isDatatype=false;
-                        }else{
-                            nextVariable=false;
-                            isDatatype=false;
-                        }
-                        
-                    
+                        i += t.tokenName.length() - 1;
                     }
-                }    
+                } else if ((isDatatype && text.charAt(i) == ' ') && !nextVariable) {
+                    nextVariable = true;
+                    newVar = new String();
+                } else if (nextVariable && text.charAt(i) != ' ') {
+                    newVar += text.charAt(i);
+                } else if (nextVariable && (text.charAt(i) == ' ' || text.charAt(i) == '\n')) {
 
-    
-}
+                    if (newVar.length() > 1) {
+                        this.highlighter.getGraph()
+                                .addTokenToGraph(new Token(newVar, 0x0000FFFF, Token.TokenType.TYPE_VARIABLE));
+                    } else {
+                        newVar = null;
+                    }
+                    nextVariable = false;
+                    isDatatype = false;
+                } else {
+                    nextVariable = false;
+                    isDatatype = false;
+                }
+
+            }
+        }
+
+    }
+
     public void open_file(String pfile_name) {
         if (new Filesystem().does_file_exist(pfile_name)) {
             this.file_name = pfile_name;
             this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
             this.text_area.setText(new Filesystem().read(this.file_name));
             this.unsaved_changes[0] = false;
-        }
-        else {
+        } else {
             JOptionPane.showMessageDialog(this.tab_manager, "This file could not be found: \n" + pfile_name);
         }
     }
@@ -224,8 +286,7 @@ public class Text_Tab {
 
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 this.file_name = fileChooser.getSelectedFile().getAbsolutePath();
-            }
-            else {
+            } else {
                 return;
             }
             this.tab_manager.setTitleAt(this.tab_index, new File(this.file_name).getName());
@@ -248,21 +309,22 @@ public class Text_Tab {
             Demo_Process.waitFor();
 
             BufferedReader Buffered_Reader = new BufferedReader(
-                                            new InputStreamReader(
-                                            Demo_Process.getInputStream()
-                                            ));
+                    new InputStreamReader(
+                            Demo_Process.getInputStream()));
             String Output_line = "";
 
             while ((Output_line = Buffered_Reader.readLine()) != null) {
                 System.out.println(Output_line);
             }
+        } catch (IOException e) {
+        } catch (InterruptedException e) {
         }
-        catch (IOException e) {}
-        catch (InterruptedException e) {}
     }
+
     public boolean close_file() {
         if (this.unsaved_changes[0]) {
-            int reply = JOptionPane.showConfirmDialog(null, "Do you want to save this document? ", "Save" + this.file_name + " ?", JOptionPane.YES_NO_CANCEL_OPTION);
+            int reply = JOptionPane.showConfirmDialog(null, "Do you want to save this document? ",
+                    "Save" + this.file_name + " ?", JOptionPane.YES_NO_CANCEL_OPTION);
 
             if (reply != JOptionPane.NO_OPTION && reply != JOptionPane.YES_OPTION) {
                 return false;
