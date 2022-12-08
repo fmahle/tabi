@@ -174,6 +174,13 @@ public class Window {
         actiona.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_L);
         cho_lan.setAction(actiona);
 
+        new_file.setAccelerator(KeyStroke.getKeyStroke("control N"));
+        open_file.setAccelerator(KeyStroke.getKeyStroke("control O"));
+        save_file.setAccelerator(KeyStroke.getKeyStroke("control S"));
+        save_as.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
+        close_file.setAccelerator(KeyStroke.getKeyStroke("control shift C"));
+
+        pyxe.setAccelerator(KeyStroke.getKeyStroke("control E"));
 
         file_menu.add(new_file);
         file_menu.add(open_file);
