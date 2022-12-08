@@ -354,20 +354,9 @@ public class Text_Tab {
         }
 
         try {
-            Process Demo_Process = new ProcessBuilder(this.program, this.file_name).inheritIO().start();
-            Demo_Process.waitFor();
-
-            BufferedReader Buffered_Reader = new BufferedReader(
-                    new InputStreamReader(
-                            Demo_Process.getInputStream()));
-            String Output_line = "";
-
-            while ((Output_line = Buffered_Reader.readLine()) != null) {
-                System.out.println(Output_line);
-            }
-        } catch (IOException e) {
-        } catch (InterruptedException e) {
+            new ProcessBuilder(this.program, this.file_name).inheritIO().start();
         }
+        catch (IOException e) {}
     }
 
     public boolean close_file(boolean respawn) {
