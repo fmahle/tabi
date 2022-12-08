@@ -153,7 +153,7 @@ public class Window {
         close_file.setAction(action6);
 
 
-        Action action7 = new AbstractAction("Execute") {
+        Action action7 = new AbstractAction("Save & Execute") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selab().execute();
