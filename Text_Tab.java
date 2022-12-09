@@ -311,7 +311,8 @@ public class Text_Tab {
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
-    private int getLineCountUntil(int index,String str,int[] additionalResults){
+
+    private int getLineCountUntil(int index, String str, int[] additionalResults) {
 
         int lineCounter = 0;
         int charCounter = 0;
@@ -323,55 +324,87 @@ public class Text_Tab {
             } else {
                 charCounter++;
                 if (charCounter >= index) {
-                    if(additionalResults!=null){
-                       additionalResults[0] = currentLineStart;
+                    if (additionalResults != null) {
+                        additionalResults[0] = currentLineStart;
                     }
-                      
+
                     break;
                 }
             }
         }
         for (int i = charCounter + lineCounter; i < str.length(); i++) {
             if (str.charAt(i) == '\n') {
-                if(additionalResults!=null){
+                if (additionalResults != null) {
                     additionalResults[1] = i;
-                 }
+                }
                 break;
             }
         }
-        if(additionalResults!=null){
-            additionalResults[2]=charCounter;
+        if (additionalResults != null) {
+            additionalResults[2] = charCounter;
         }
         return lineCounter;
     }
+
     public void checkForUpdates(boolean isDelete, int affactedAreaOffset, int affactedAreaSize) {
         // get current line
-        String affactedText=null;
+       // String affactedText = null;
+        int affactedLine[] = new int[16];
+        int currentAffactedLine = 0;
         if (isDelete) {
-            affactedText = prevText.substring(affactedAreaOffset,affactedAreaOffset+ affactedAreaSize);
+           // affactedText = prevText.substring(affactedAreaOffset, affactedAreaOffset + affactedAreaSize);
+            for (int i = affactedAreaOffset; i < affactedAreaOffset + affactedAreaSize; i++) {
+                if (prevText.charAt(i) == '\n') {
+                    // resize array
+                    if (currentAffactedLine >= affactedLine.length) {
+                        int[] newAffactedLine = new int[affactedLine.length * 2];
+                        for (int k = 0; k < affactedLine.length; k++) {
+                            newAffactedLine[k] = affactedLine[k];
+                        }
+                        affactedLine = newAffactedLine;
+                    }
+                    affactedLine[currentAffactedLine] = getLineCountUntil(i, prevText, null);
+                    currentAffactedLine++;
+                }
+            }
+            
         } else {
             try {
-                affactedText = text_area.getText(affactedAreaOffset, affactedAreaSize);
+                //affactedText = text_area.getText(affactedAreaOffset, affactedAreaSize);
+                for (int i = affactedAreaOffset; i < affactedAreaOffset + affactedAreaSize; i++) {
+                    if (prevText.charAt(i) == '\n') {
+                        // resize array
+                        if (currentAffactedLine >= affactedLine.length) {
+                            int[] newAffactedLine = new int[affactedLine.length * 2];
+                            for (int k = 0; k < affactedLine.length; k++) {
+                                newAffactedLine[k] = affactedLine[k];
+                            }
+                            affactedLine = newAffactedLine;
+                        }
+                        affactedLine[currentAffactedLine] = getLineCountUntil(i, text_area.getText(), null);
+                        currentAffactedLine++;
+                    }
+                }
             } catch (Exception e) {
 
             }
         }
-        
+
         String text = this.text_area.getText();
         // System.out.println(text);
         int firstIndex = 0;
         int lastIndex = text.length();
         int dotPos = this.text_area.getCaret().getDot();
-        int lineCounter=0;
+        int lineCounter = 0;
         // System.out.println("dotPos: "+dotPos);
         // System.out.println("totalLength: "+this.text_area.getText().length());
 
         if (lastDot != dotPos) {
             lastDot = dotPos;
-            int[] results= new int[3];
-            lineCounter=getLineCountUntil(dotPos, text, results);
-            firstIndex=results[0];
-            lastIndex=results[1];
+            int[] results = new int[3];
+            lineCounter = getLineCountUntil(dotPos, text, results);
+            firstIndex = results[0];
+            lastIndex = results[1];
             if (firstIndex >= lastIndex) {
                 return;
             }
