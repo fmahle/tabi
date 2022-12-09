@@ -32,7 +32,7 @@ public class Text_Tab {
                 public TokenAddress t;
                 public TokenElement next;
                 public TokenElement prev;
-
+                
                 public TokenElement(TokenElement prev, TokenElement next) {
                     this.prev = prev;
                     this.next = next;
@@ -45,11 +45,14 @@ public class Text_Tab {
             protected TokenElement start;
             protected TokenElement end;
             protected TokenElement iterator;
-
+            public int rangeMin;
+            public int rangeMax;
             public Line() {
                 start = null;
                 end = null;
                 iterator = null;
+                rangeMin=0;
+                rangeMax=0;
             }
 
             public TokenAddress Iterate() {
@@ -67,8 +70,10 @@ public class Text_Tab {
             }
 
             public void addSorted(TokenAddress t) {
-                if (start == null) {
+                if (start == null||end==null) {
                     start = new TokenElement(null, null);
+                    rangeMax=t.address;
+                    rangeMin=t.address;
                     start.t = t;
                     end = start;
                 } else if (start == end) {
@@ -76,16 +81,21 @@ public class Text_Tab {
                         start = new TokenElement(null, end);
                         start.t = t;
                         end.prev = start;
+                        rangeMin=t.address;
                     } else {
                         end = new TokenElement(start, null);
                         end.t = t;
                         start.next = end;
+                        rangeMax=t.address;
                     }
                 } else {
                     TokenElement el = start;
                     boolean inserted = false;
                     do {
                         if (el.t.address > t.address) {
+                            if(el==start){
+                                rangeMin=t.address;
+                            }
                             TokenElement pre = el.prev;
                             el.prev = new TokenElement(pre, el);
                             if (pre != null) {
@@ -101,6 +111,7 @@ public class Text_Tab {
                         TokenElement pre = end;
                         end = new TokenElement(pre, null);
                         pre.next = end;
+                        rangeMax=t.address;
 
                     }
                 }
@@ -120,12 +131,17 @@ public class Text_Tab {
                         TokenElement pre = end;
                         end = end.prev;
                         pre.prev = null;
-
+                        if(end!=null){
+                            rangeMax=end.t.address;
+                        }
                     }
                     if (iterator == start) {
                         TokenElement pre = start;
                         start = start.next;
                         pre.next = null;
+                        if(start!=null){
+                            rangeMin=start.t.address;
+                        }
                     }
                 }
             }
@@ -349,6 +365,8 @@ public class Text_Tab {
     public void checkForUpdates(boolean isDelete, int affactedAreaOffset, int affactedAreaSize) {
         // get current line
        // String affactedText = null;
+       String text = this.text_area.getText();
+        
         int affactedLine[] = new int[16];
         int currentAffactedLine = 0;
         if (isDelete) {
@@ -381,16 +399,20 @@ public class Text_Tab {
                             }
                             affactedLine = newAffactedLine;
                         }
-                        affactedLine[currentAffactedLine] = getLineCountUntil(i, text_area.getText(), null);
+                        affactedLine[currentAffactedLine] = getLineCountUntil(i,text, null);
                         currentAffactedLine++;
                     }
                 }
             } catch (Exception e) {
 
             }
-        }
+            for(int i=0; i< currentAffactedLine;i++){
+                TokenText.Line l= tokenText.getLineAt(affactedLine[i]);
+                
 
-        String text = this.text_area.getText();
+            }
+        }
+       
         // System.out.println(text);
         int firstIndex = 0;
         int lastIndex = text.length();
