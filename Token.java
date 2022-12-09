@@ -44,4 +44,11 @@ public class Token {
         this.flags=(char)(flags&0x000000FF);
         this.type=type;
     }
+    public Token(String tokenName,Token other){
+         this.tokenName=tokenName;
+         this.fontColor=other.fontColor;
+         this.flags=other.flags;
+         this.type=other.type;
+         this.backgroundColor=other.backgroundColor;
+    }
 }

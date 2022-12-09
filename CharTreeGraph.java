@@ -86,6 +86,26 @@ class CharTreeGraph {
                 return null;
             }*/
             return null;
+        }
+        public void removeTokenStringFast(String token){
+            for (int i = 0; i < this.currentChild; i++) {
+                
+                if(children[i].c == token.charAt(0)) {
+                    //token is at the end
+                    if(token.length()==1){
+                        if(children[i].isEnd){
+                            children[i].isEnd=false;
+                        }
+                         
+                    }
+                    else {
+                        token = token.substring(1);
+                        children[i].searchForToken(token);
+                        
+                        
+                    }
+                }
+            }
         }  
     }
     private CharTreeNode node;
@@ -97,7 +117,11 @@ class CharTreeGraph {
     void addTokenToGraph(Token str) {
         node.addStringToGraph(str.tokenName, str);
     }
-
+    void removeToken(Token t){
+        if(t!=null){
+            node.removeTokenStringFast(t.tokenName);
+        }
+    }
     Token searchForToken(String tokenStr) {
         if(tokenStr.length() != 0) {
             return node.searchForToken(tokenStr);
