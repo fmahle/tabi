@@ -26,8 +26,8 @@ public class Text_Tab {
         public int address;
     }
 
-    public class TokenRegister {
-        public class TokenTile {
+    public class TokenText {
+        public class Line {
             public class TokenElement {
                 public TokenAddress t;
                 public TokenElement next;
@@ -40,33 +40,22 @@ public class Text_Tab {
                 }
             }
 
-            protected TokenElement[] tokens;
-            protected TokenElement currentToken;
+            // protected TokenElement[] tokens;
+            // protected TokenElement currentToken;
             protected TokenElement start;
             protected TokenElement end;
             protected TokenElement iterator;
-            public TokenTile() {
-                tokens = new TokenElement[16];
-                for (int i = 0; i <= 16; i++) {
-                    if (i < 16) {
-                        tokens[i] = new TokenElement(i == 0 ? null : tokens[i - 1], null);
-                    }
-                    if (i > 0) {
-                        tokens[i - 1].next = tokens[i];
-                    }
 
-                }
-
-                currentToken = tokens[0];
-                start = tokens[0];
-                end = tokens[15];
-                iterator=currentToken;
+            public Line() {
+                start = null;
+                end = null;
+                iterator = null;
             }
 
             public TokenAddress Iterate() {
-                if (currentToken != null) {
-                    TokenElement cTokenCopy = currentToken;
-                    currentToken = currentToken.next;
+                if (iterator != null) {
+                    TokenElement cTokenCopy = iterator;
+                    iterator = iterator.next;
                     return cTokenCopy.t;
 
                 } else
@@ -78,52 +67,184 @@ public class Text_Tab {
             }
 
             public void addSorted(TokenAddress t) {
-                if(currentToken != null){
-                    currentToken.t=t;
-                    if(currentToken.next == null){
-                        resize();
+                if (start == null) {
+                    start = new TokenElement(null, null);
+                    start.t = t;
+                    end = start;
+                } else if (start == end) {
+                    if (start.t.address < t.address) {
+                        start = new TokenElement(null, end);
+                        start.t = t;
+                        end.prev = start;
+                    } else {
+                        end = new TokenElement(start, null);
+                        end.t = t;
+                        start.next = end;
                     }
-                    currentToken = currentToken.next;
-                }
-            }
-            public void removeCurrentToken(){
+                } else {
+                    TokenElement el = start;
+                    boolean inserted = false;
+                    do {
+                        if (el.t.address > t.address) {
+                            TokenElement pre = el.prev;
+                            el.prev = new TokenElement(pre, el);
+                            if (pre != null) {
+                                pre.next = el.prev;
+                            }
+                            inserted = true;
+                            break;
+                        }
+                        el = el.next;
+                    } while (el != null);
+                    if (!inserted) {
+                        // is at end
+                        TokenElement pre = end;
+                        end = new TokenElement(pre, null);
+                        pre.next = end;
 
-                
-            }
-            public void resize() {
-                TokenElement[] newTokens=new TokenElement[tokens.length*2];
-                int i=0;
-                for(; i<tokens.length;i++){
-                    newTokens[i]=tokens[i];
-                }
-                newTokens[i]= new TokenElement(end, null);
-                newTokens[i-1].next=newTokens[i];
-                i++;
-                for(;i<newTokens.length+1;i++){
-                    if(i<newTokens.length){
-                    newTokens[i]=new TokenElement(newTokens[i-1], null);
-                    } 
-                    if(i>1){
-                        newTokens[i-1].next=newTokens[i];
                     }
                 }
-                end=newTokens[newTokens.length-1];
-                tokens=newTokens;
+            }
+
+            public void removeCurrentToken() {
+                if (iterator != null) {
+                    if (iterator.next != null && iterator.prev != null) {
+                        TokenElement pre = iterator;
+                        iterator.next.prev = iterator.prev;
+                        iterator.prev.next = iterator.next;
+                        iterator = iterator.prev;
+                        pre.next = null;
+                        pre.prev = null;
+                    } else if (iterator == end) {
+                        // is at end
+                        TokenElement pre = end;
+                        end = end.prev;
+                        pre.prev = null;
+
+                    }
+                    if (iterator == start) {
+                        TokenElement pre = start;
+                        start = start.next;
+                        pre.next = null;
+                    }
+                }
+            }
+
+        }
+
+        public class Lineholder {
+            public Line line;
+            public Lineholder prev;
+            public Lineholder next;
+
+            public Lineholder(Lineholder prev, Lineholder next) {
+                this.prev = prev;
+                this.next = next;
+            }
+
+        }
+
+        private Lineholder start;
+        private Lineholder end;
+
+        // private Lineholder iterator;
+        public TokenText() {
+            start = null;
+            end = null;
+            // iterator=null;
+        }
+
+        public Line getLineAt(int index) {
+            Lineholder iterator = start;
+
+            for (int i = 0; iterator != null; iterator = iterator.next, i++) {
+                if (i == index) {
+                    return iterator.line;
+                }
+            }
+            return null;
+        }
+
+        public void insertLineAt(int index, Line l) {
+            if (start == null) {
+                start = new Lineholder(null, null);
+                start.line = l;
+                end = start;
+            } else if (start == end) {
+                if (index == 0) {
+                    start = new Lineholder(null, end);
+                    start.line = l;
+                    end.prev = start;
+                }
+            } else {
+                Lineholder el = start;
+                boolean inserted = false;
+                Lineholder iterator = start;
+
+                for (int i = 0; iterator != null; iterator = iterator.next, i++) {
+                    if (i == index) {
+                        Lineholder pre = el.prev;
+                        el.prev = new Lineholder(pre, el);
+                        if (pre != null) {
+                            pre.next = el.prev;
+                        }
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) {
+                    // is at end
+                    Lineholder pre = end;
+                    end = new Lineholder(pre, null);
+                    pre.next = end;
+
+                }
             }
         }
 
+        public void deleteLineAt(int index) {
+            Lineholder iterator = start;
+            for (int i = 0; iterator != null; iterator = iterator.next, i++) {
+                if (i == index) {
+                    break;
+                }
+            }
+            if (iterator != null) {
+                if (iterator.next != null && iterator.prev != null) {
+                    Lineholder pre = iterator;
+                    iterator.next.prev = iterator.prev;
+                    iterator.prev.next = iterator.next;
+                    iterator = iterator.prev;
+                    pre.next = null;
+                    pre.prev = null;
+                } else if (iterator == end) {
+                    // is at end
+                    Lineholder pre = end;
+                    end = end.prev;
+                    pre.prev = null;
+
+                }
+                if (iterator == start) {
+                    Lineholder pre = start;
+                    start = start.next;
+                    pre.next = null;
+                }
+            }
+        }
     }
 
     public boolean[] unsaved_changes = { false }; // make bool pointer
     public String file_name = "";
-    String program = "";
-    public JTextPane text_area;
+    public String program = "";
+    public final JTextPane text_area;
     public int tab_index;
     public JTabbedPane tab_manager;
     public TextHighlighter highlighter;
     public Window root;
     public int lastDot;
-    JLabel lblTitle;
+    public JLabel lblTitle;
+    public TokenText tokenText;
+    public String prevText;
 
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
         this.root = root;
@@ -141,7 +262,12 @@ public class Text_Tab {
                 .addDocumentListener(new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes));
         this.text_area.getDocument().addDocumentListener(highlighter);
         JScrollPane scroll_plane = new JScrollPane(this.text_area);
-
+        text_area.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                prevText = text_area.getText();
+            }
+        });
         scroll_plane.getViewport().add(this.text_area);
         scroll_plane.setRowHeaderView(line_numbers);
 
@@ -159,7 +285,7 @@ public class Text_Tab {
         JButton btnClose = new JButton("", xicon);
         btnClose.setBorder(BorderFactory.createEmptyBorder());
         // btnClose.setRolloverIcon(xicon);
-
+        tokenText = new TokenText();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -185,43 +311,67 @@ public class Text_Tab {
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
+    private int getLineCountUntil(int index,String str,int[] additionalResults){
 
-    public void checkForUpdates() {
+        int lineCounter = 0;
+        int charCounter = 0;
+        int currentLineStart = 0;
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) == '\n') {
+                lineCounter++;
+                currentLineStart = charCounter;
+            } else {
+                charCounter++;
+                if (charCounter >= index) {
+                    if(additionalResults!=null){
+                       additionalResults[0] = currentLineStart;
+                    }
+                      
+                    break;
+                }
+            }
+        }
+        for (int i = charCounter + lineCounter; i < str.length(); i++) {
+            if (str.charAt(i) == '\n') {
+                if(additionalResults!=null){
+                    additionalResults[1] = i;
+                 }
+                break;
+            }
+        }
+        if(additionalResults!=null){
+            additionalResults[2]=charCounter;
+        }
+        return lineCounter;
+    }
+    public void checkForUpdates(boolean isDelete, int affactedAreaOffset, int affactedAreaSize) {
         // get current line
+        String affactedText=null;
+        if (isDelete) {
+            affactedText = prevText.substring(affactedAreaOffset,affactedAreaOffset+ affactedAreaSize);
+        } else {
+            try {
+                affactedText = text_area.getText(affactedAreaOffset, affactedAreaSize);
+            } catch (Exception e) {
+
+            }
+        }
+        
         String text = this.text_area.getText();
         // System.out.println(text);
         int firstIndex = 0;
         int lastIndex = text.length();
         int dotPos = this.text_area.getCaret().getDot();
-
+        int lineCounter=0;
         // System.out.println("dotPos: "+dotPos);
         // System.out.println("totalLength: "+this.text_area.getText().length());
 
         if (lastDot != dotPos) {
             lastDot = dotPos;
-
-            int lineCounter = 0;
-            int charCounter = 0;
-            int currentLineStart = 0;
-            for (int i = 0; i < lastIndex; i++) {
-                if (text.charAt(i) == '\n') {
-                    lineCounter++;
-                    currentLineStart = charCounter;
-                } else {
-                    charCounter++;
-                    if (charCounter == dotPos) {
-                        firstIndex = currentLineStart;
-                        break;
-                    }
-                }
-            }
-            for (int i = charCounter + lineCounter; i < lastIndex; i++) {
-                if (text.charAt(i) == '\n') {
-                    lastIndex = i;
-                    break;
-                }
-            }
-
+            int[] results= new int[3];
+            lineCounter=getLineCountUntil(dotPos, text, results);
+            firstIndex=results[0];
+            lastIndex=results[1];
             if (firstIndex >= lastIndex) {
                 return;
             }
@@ -355,8 +505,8 @@ public class Text_Tab {
 
         try {
             new ProcessBuilder(this.program, this.file_name).inheritIO().start();
+        } catch (IOException e) {
         }
-        catch (IOException e) {}
     }
 
     public boolean close_file(boolean respawn) {

@@ -11,17 +11,15 @@ public class Filesystem {
             // FileReader uses default encoding.
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file_name));
 
-            while((line = bufferedReader.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
                 result += line + "\n";
             }
 
             bufferedReader.close();
             return result;
-        }
-        catch(FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             System.out.println("Unable to open file '" + file_name + "'");
-        }
-        catch(IOException ex) {
+        } catch (IOException ex) {
             System.out.println("Error reading file '" + file_name + "'");
             // Or we could just do this:
             // ex.printStackTrace();
@@ -31,15 +29,14 @@ public class Filesystem {
 
     public boolean write(String file_name, String file_content) {
         try {
-            //Create file
+            // Create file
             new File(file_name).createNewFile();
-            //Write to file
+            // Write to file
             FileWriter myWriter = new FileWriter(file_name);
             myWriter.write(file_content);
             myWriter.close();
             return true;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("An error occurred while creating/writing a file");
             e.printStackTrace();
         }
@@ -50,8 +47,8 @@ public class Filesystem {
         return new File(file_name).isFile();
     }
 
-    //public static void main(String [] args) {
-    //    new Filesystem().write("/home/waldfee/test.txt", "Hello Filesystem", false);
-    //    System.out.println(new Filesystem().read("/home/waldfee/test.txt"));
-    //}
+    // public static void main(String [] args) {
+    // new Filesystem().write("/home/waldfee/test.txt", "Hello Filesystem", false);
+    // System.out.println(new Filesystem().read("/home/waldfee/test.txt"));
+    // }
 }

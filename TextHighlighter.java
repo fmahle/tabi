@@ -39,7 +39,7 @@ public class TextHighlighter implements DocumentListener{
         SwingUtilities.invokeLater(new Runnable(){
             @Override
             public void run(){
-                tab.checkForUpdates();
+                tab.checkForUpdates(false,e.getOffset(),e.getLength());
             }
         });
         
@@ -52,7 +52,7 @@ public class TextHighlighter implements DocumentListener{
           
             @Override
             public void run(){
-                tab.checkForUpdates();
+                tab.checkForUpdates(true,e.getOffset(),e.getLength());
             }
         });
         

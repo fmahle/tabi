@@ -62,6 +62,8 @@ class CharTreeGraph {
                     else {
                         token = token.substring(1);
                         Token res = children[i].searchForToken(token);
+                        return res;
+                        /* 
                         if (res == null) {
                             if (this.isEnd) {
                                 return this.key;
@@ -72,17 +74,18 @@ class CharTreeGraph {
                         }
                         else {
                             return res;
-                        }
+                        }*/
                     }
                 }
             }
             //if no child was found
-            if (this.isEnd) {
+            /*if (this.isEnd) {
                 return this.key;
             }
             else {
                 return null;
-            }
+            }*/
+            return null;
         }  
     }
     private CharTreeNode node;

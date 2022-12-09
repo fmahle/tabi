@@ -8,7 +8,8 @@ public class Token {
      public enum TokenType{
         TYPE_DATATYPE,
         TYPE_VARIABLE,
-        TYPE_WIP;
+        TYPE_GENERIC,
+        TYPE_LINKED;
 
 
      }
@@ -27,6 +28,7 @@ public class Token {
         this.backgroundColor=backColor;
         this.flags=flags;
         this.type=type;
+        
     }
     public Token(String tokenName,int fontColor,TokenType type){
         this.tokenName=tokenName;
