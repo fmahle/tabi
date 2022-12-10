@@ -19,6 +19,7 @@ public class Token {
     //flags: 0x01: underlined, 0x02: bold
     public char flags;
     public TokenType type;
+    public boolean isValid;
     public Token(){
          
     }
@@ -28,6 +29,7 @@ public class Token {
         this.backgroundColor=backColor;
         this.flags=flags;
         this.type=type;
+        isValid=false;
         
     }
     public Token(String tokenName,int fontColor,TokenType type){
@@ -36,6 +38,7 @@ public class Token {
         this.backgroundColor=0xFFFFFFFF;
         this.flags=0x00;
         this.type=type;
+        isValid=false;
     }
     public Token(String tokenName,int fontColor,int backColor,int flags,TokenType type){
         this.tokenName=tokenName;
@@ -43,6 +46,7 @@ public class Token {
         this.backgroundColor=backColor;
         this.flags=(char)(flags&0x000000FF);
         this.type=type;
+        isValid=false;
     }
     public Token(String tokenName,Token other){
          this.tokenName=tokenName;
@@ -50,5 +54,6 @@ public class Token {
          this.flags=other.flags;
          this.type=other.type;
          this.backgroundColor=other.backgroundColor;
+         isValid=false;
     }
 }

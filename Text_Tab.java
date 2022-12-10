@@ -51,15 +51,23 @@ public class Text_Tab {
             private TokenElement start;
             private TokenElement end;
             private TokenElement iterator;
-            public int rangeMin;
-            public int rangeMax;
+
+            private int length;
+            private int offset;
 
             public Line() {
                 start = null;
                 end = null;
                 iterator = null;
-                rangeMin = 0;
-                rangeMax = 0;
+
+            }
+
+            public int getOffset() {
+                return offset;
+            }
+
+            public int getLength() {
+                return length;
             }
 
             public TokenAddress Iterate() {
@@ -74,27 +82,25 @@ public class Text_Tab {
 
             public TokenAddress resetIteration() {
                 iterator = start;
-                return start.t;
+                return iterator == null ? null : iterator.t;
             }
 
             public void removeEverythingAfterIterator() {
                 if (iterator != null) {
                     end = iterator;
                     end.next = null;
-                    rangeMax = end.t.address + end.t.t.tokenName.length();
+
                 } else {
                     start = null;
                     end = null;
-                    rangeMin = 0;
-                    rangeMax = 0;
+
                 }
             }
 
             public void addSorted(TokenAddress t) {
                 if (start == null || end == null) {
                     start = new TokenElement(null, null);
-                    rangeMax = t.address + t.t.tokenName.length();
-                    rangeMin = t.address;
+
                     start.t = t;
                     end = start;
                 } else if (start == end) {
@@ -102,21 +108,18 @@ public class Text_Tab {
                         start = new TokenElement(null, end);
                         start.t = t;
                         end.prev = start;
-                        rangeMin = t.address;
+
                     } else {
                         end = new TokenElement(start, null);
                         end.t = t;
                         start.next = end;
-                        rangeMax = t.address + t.t.tokenName.length();
                     }
                 } else {
                     TokenElement el = start;
                     boolean inserted = false;
                     do {
                         if (el.t.address > t.address) {
-                            if (el == start) {
-                                rangeMin = t.address;
-                            }
+
                             TokenElement pre = el.prev;
                             el.prev = new TokenElement(pre, el);
                             if (pre != null) {
@@ -132,7 +135,6 @@ public class Text_Tab {
                         TokenElement pre = end;
                         end = new TokenElement(pre, null);
                         pre.next = end;
-                        rangeMax = t.address + t.t.tokenName.length();
 
                     }
                 }
@@ -141,21 +143,19 @@ public class Text_Tab {
             public void append(TokenAddress t) {
                 if (start == null || end == null) {
                     start = new TokenElement(null, null);
-                    rangeMax = t.address + t.t.tokenName.length();
-                    rangeMin = t.address;
+
                     start.t = t;
                     end = start;
                 } else if (start == end) {
                     end = new TokenElement(start, null);
                     start.next = end;
                     end.t = t;
-                    rangeMax = t.address + t.t.tokenName.length();
+
                 } else {
                     TokenElement pre = end;
                     end = new TokenElement(pre, null);
                     pre.next = end;
                     end.t = t;
-                    rangeMax = t.address + t.t.tokenName.length();
 
                 }
             }
@@ -175,7 +175,7 @@ public class Text_Tab {
                         end = end.prev;
                         pre.prev = null;
                         if (end != null) {
-                            rangeMax = end.t.address + end.t.t.tokenName.length();
+
                         }
                     }
                     if (iterator == start) {
@@ -183,7 +183,7 @@ public class Text_Tab {
                         start = start.next;
                         pre.next = null;
                         if (start != null) {
-                            rangeMin = start.t.address;
+
                         }
                     }
                 }
@@ -205,12 +205,28 @@ public class Text_Tab {
 
         private Lineholder start;
         private Lineholder end;
+        private Lineholder iterator;
 
         // private Lineholder iterator;
         public TokenText() {
             start = null;
             end = null;
+            iterator = null;
             // iterator=null;
+        }
+
+        public Line createNewLine() {
+            return new Line();
+        }
+
+        public Line resetIteration() {
+            iterator = start;
+            return start.line;
+        }
+
+        public Line iterate() {
+            iterator = iterator.next;
+            return iterator == null ? null : iterator.line;
         }
 
         public Line getLineAt(int index) {
@@ -224,6 +240,14 @@ public class Text_Tab {
             return null;
         }
 
+        public void updateOffsets() {
+            int currentOffset = 0;
+            for (Line l = resetIteration(); l != null; l = iterate()) {
+                l.offset = currentOffset;
+                currentOffset += l.length;
+            }
+        }
+
         public void insertLineAt(int index, Line l) {
             if (start == null) {
                 start = new Lineholder(null, null);
@@ -234,6 +258,10 @@ public class Text_Tab {
                     start = new Lineholder(null, end);
                     start.line = l;
                     end.prev = start;
+                }else{
+                    end = new Lineholder(start, null);
+                    end.line = l;
+                    start.next = end;
                 }
             } else {
                 Lineholder el = start;
@@ -306,6 +334,7 @@ public class Text_Tab {
     public String prevText;
     public final Token newVarPreset;
     public Line_Number_Inserter lNI;
+
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
         this.root = root;
         this.tab_manager = ptab_manager;
@@ -319,7 +348,7 @@ public class Text_Tab {
         line_numbers.setBackground(Color.LIGHT_GRAY);
         line_numbers.setEditable(false);
         lastDot = 0;
-        lNI=new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes);
+        lNI = new Line_Number_Inserter(this.text_area, line_numbers, unsaved_changes);
         this.text_area.getDocument()
                 .addDocumentListener(lNI);
         this.text_area.getDocument().addDocumentListener(highlighter);
@@ -373,92 +402,95 @@ public class Text_Tab {
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
     }
-    private class ResultCache{
+
+    private class ResultCache {
         public int lineCounter;
         public int charCounter;
         public int currentLineStart;
         public int opIndex;
         public String text;
-        public ResultCache(){
-            lineCounter = 0; 
+
+        public ResultCache() {
+            lineCounter = 0;
             charCounter = 0;
             currentLineStart = 0;
         }
     }
-    //Simple cache for better performance, could be more complex(more cache entries,sorting...)
+
+    // Simple cache for better performance, could be more complex(more cache
+    // entries,sorting...)
     private ResultCache m_GTLCCache;
+
     private int getLineCountUntil(int index, String str, int[] additionalResults) {
         int lineCounter = 0;
-        int charCounter = 0;//excludes lines
+        int charCounter = 0;// excludes lines
         int currentLineStart = 0;
-        if(m_GTLCCache==null){
-            m_GTLCCache=new ResultCache();
-        }else if(m_GTLCCache.text==str&&m_GTLCCache.opIndex<index){
-            lineCounter=m_GTLCCache.lineCounter;
-            charCounter=m_GTLCCache.charCounter;
-            currentLineStart=m_GTLCCache.currentLineStart;
+        int lastIndex = str.length();
+        if (m_GTLCCache == null) {
+            m_GTLCCache = new ResultCache();
+        } else if (m_GTLCCache.text == str && m_GTLCCache.opIndex < index) {
+            lineCounter = m_GTLCCache.lineCounter;
+            charCounter = m_GTLCCache.charCounter;
+            currentLineStart = m_GTLCCache.currentLineStart;
         }
-       
-        for (int i = charCounter+lineCounter; i < str.length(); i++) {
-            if (str.charAt(i) == '\n') {
-                lineCounter++;
-                currentLineStart = charCounter;
-            } else {
-                charCounter++;
-                if (charCounter >= index) {
-                    if (additionalResults != null) {
-                        additionalResults[0] = currentLineStart;
-                    }
 
-                    break;
+        for (int i = charCounter; i < str.length(); i++) {
+
+            if (i + 1 < str.length()) {
+                if (str.charAt(i) == (char)13 && str.charAt(i + 1) == '\n') {
+                    lineCounter++;
+                    currentLineStart = charCounter;
+                    i++;
                 }
             }
+            if (charCounter >= index) {
+                if (additionalResults != null) {
+                    additionalResults[0] = currentLineStart;
+
+                }
+
+                break;
+            }
+            charCounter++;
+
         }
         for (int i = charCounter + lineCounter; i < str.length(); i++) {
             if (str.charAt(i) == '\n') {
-                if (additionalResults != null) {
-                    additionalResults[1] = i;
-                }
+
+                lastIndex = i;
+
                 break;
             }
         }
         if (additionalResults != null) {
-            additionalResults[2] = charCounter;
+            additionalResults[1] = lastIndex;// abs
+            additionalResults[2] = lastIndex - lineCounter;// rel
         }
-        m_GTLCCache.charCounter=charCounter;
-        m_GTLCCache.lineCounter=lineCounter;
-        m_GTLCCache.currentLineStart=currentLineStart;
-        m_GTLCCache.opIndex=index;
-        m_GTLCCache.text=str;
+        m_GTLCCache.charCounter = lastIndex;
+        m_GTLCCache.lineCounter = lineCounter;
+        m_GTLCCache.currentLineStart = currentLineStart;
+        m_GTLCCache.opIndex = index;
+        m_GTLCCache.text = str;
         return lineCounter;
     }
 
-    private class bundle {
-        int affactedLine;
-        int lineStart;
-    }
-
     // returns line end
-    public int updateLine(int offset, int lineIndex, String text, TokenText.Line line) {
+    public int updateLine(int offset, int lineIndex, int endOfLine, String text, TokenText.Line line) {
 
         int lastIndex = text.length();
-        int realOffset = offset + lineIndex;
-        for (int i = realOffset; i < text.length(); i++) {
-            if (text.charAt(i) == '\n') {
-                lastIndex = i;
-                break;
+        int realOffset = offset;
+        if (endOfLine == -1) {
+            for (int i = realOffset; i < text.length(); i++) {
+                if (text.charAt(i) == '\n') {
+                    lastIndex = i;
+                    break;
+                }
             }
+        } else {
+            lastIndex = endOfLine;
         }
-        StyledDocument sDoc = this.text_area.getStyledDocument();
-
-        // reset Style:
-        SimpleAttributeSet colorAttributeSet = new SimpleAttributeSet();
-        StyleConstants.setForeground(colorAttributeSet, Color.BLACK);
-        StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
-        StyleConstants.setUnderline(colorAttributeSet, false);
-        StyleConstants.setBold(colorAttributeSet, false);
+        line.length = lastIndex - realOffset;
         TokenAddress addr;
-        sDoc.setCharacterAttributes(offset, lastIndex - (realOffset), colorAttributeSet, true);
         CharTreeGraph graph = highlighter.getGraph();
 
         boolean isDatatype = false;
@@ -518,95 +550,85 @@ public class Text_Tab {
         line.removeEverythingAfterIterator();
         return lastIndex;
     }
-    public void updateHighlighting(String text,int totalLineCount){
+
+    public void updateHighlighting(String text, int totalLineCount) {
         StyledDocument sDoc = this.text_area.getStyledDocument();
-        int currentLine=0;
+
         // reset Style:
         SimpleAttributeSet colorAttributeSet = new SimpleAttributeSet();
         StyleConstants.setForeground(colorAttributeSet, Color.BLACK);
         StyleConstants.setBackground(colorAttributeSet, Color.WHITE);
         StyleConstants.setUnderline(colorAttributeSet, false);
         StyleConstants.setBold(colorAttributeSet, false);
-       
-        sDoc.setCharacterAttributes(0, text.length()-totalLineCount, colorAttributeSet, true);
-        CharTreeGraph graph = highlighter.getGraph();
-        for (int i = 0; i < text.length()-totalLineCount; i++) {
-                if(text.charAt(i)== '\n'){currentLine++;continue;}
-                Token t = graph.searchForToken(text.substring(i, text.length()-totalLineCount));
-                if (t != null) {
-                    StyleConstants.setForeground(colorAttributeSet, new Color(t.fontColor));
-                    StyleConstants.setBackground(colorAttributeSet, new Color(t.backgroundColor));
-                    StyleConstants.setUnderline(colorAttributeSet, (t.flags & 0x01) == 0x01);
-                    StyleConstants.setBold(colorAttributeSet, (t.flags & 0x02) == 0x02);
 
-                    sDoc.setCharacterAttributes(i - currentLine, t.tokenName.length(), colorAttributeSet, true);
-                    // check if token is datatype
-                    i += t.tokenName.length() - 1;
+        sDoc.setCharacterAttributes(0, text.length() - totalLineCount, colorAttributeSet, true);
+
+        int lineCount = 0;
+
+        for (TokenText.Line line = tokenText.resetIteration(); line != null; line = tokenText.iterate(), lineCount++) {
+            for (TokenAddress addr = line.resetIteration(); addr != null; addr = line.Iterate()) {
+                if (addr.t.isValid) {
+                    StyleConstants.setForeground(colorAttributeSet, new Color(addr.t.fontColor));
+                    StyleConstants.setBackground(colorAttributeSet, new Color(addr.t.backgroundColor));
+                    StyleConstants.setUnderline(colorAttributeSet, (addr.t.flags & 0x01) == 0x01);
+                    StyleConstants.setBold(colorAttributeSet, (addr.t.flags & 0x02) == 0x02);
+
+                    sDoc.setCharacterAttributes(line.getOffset() + addr.address - lineCount, addr.t.tokenName.length(),
+                            colorAttributeSet, true);
                 }
-           
+
+            }
+
         }
 
     }
+
+    private class Bundle {
+        int affactedLine;
+        int lineStart;
+        int lineEnd;
+    }
+
     public void checkForUpdates(boolean isDelete, int affactedAreaOffset, int affactedAreaSize) {
         // get current line
         // String affactedText = null;
         String text = this.text_area.getText();
 
-        bundle[] affactedLine = new bundle[16];
+        Bundle[] affactedLine = new Bundle[16];
         int[] additionalResults = new int[3];
+        // [0]=> start of line (absoulute)
+        // [1]=> end of line (absolute)
+        // [2]=> number of chars(end,relative)[mainly only internly used]
         int currentAffactedLine = 0;
         if (isDelete) {
             // affactedText = prevText.substring(affactedAreaOffset, affactedAreaOffset +
             // affactedAreaSize);
             for (int i = affactedAreaOffset; i < affactedAreaOffset + affactedAreaSize; i++) {
-                if (prevText.charAt(i) == '\n') {
-                    // resize array
-                    if (currentAffactedLine >= affactedLine.length) {
-                        bundle[] newAffactedLine = new bundle[affactedLine.length * 2];
-                        for (int k = 0; k < affactedLine.length; k++) {
-                            newAffactedLine[k] = affactedLine[k];
-                        }
-                        affactedLine = newAffactedLine;
+
+                // resize array
+                if (currentAffactedLine >= affactedLine.length) {
+                    Bundle[] newAffactedLine = new Bundle[affactedLine.length * 2];
+                    for (int k = 0; k < affactedLine.length; k++) {
+                        newAffactedLine[k] = affactedLine[k];
                     }
-                    affactedLine[currentAffactedLine].affactedLine = getLineCountUntil(i, prevText, additionalResults);
-                    affactedLine[currentAffactedLine].lineStart = additionalResults[0]
-                            + affactedLine[currentAffactedLine].affactedLine;
-
-                    currentAffactedLine++;
+                    affactedLine = newAffactedLine;
                 }
-            }
-            int lineOffset=affactedLine[0].lineStart+affactedLine[0].affactedLine;
-            for(int i=0; i<affactedLine.length; i++) {
-                TokenText.Line l = tokenText.getLineAt(affactedLine[i].affactedLine);
-                lineOffset=updateLine(lineOffset,affactedLine[i].affactedLine,text,l)+1;
-            }
+                affactedLine[currentAffactedLine] = new Bundle();
+                affactedLine[currentAffactedLine].affactedLine = getLineCountUntil(i, prevText, additionalResults);
+                affactedLine[currentAffactedLine].lineStart = additionalResults[0];
+                affactedLine[currentAffactedLine].lineEnd = -1;
+                i = additionalResults[1];// end of line
+                currentAffactedLine++;
 
-        } else {
-
-            // affactedText = text_area.getText(affactedAreaOffset, affactedAreaSize);
-            for (int i = affactedAreaOffset; i < affactedAreaOffset + affactedAreaSize; i++) {
-                if (prevText.charAt(i) == '\n') {
-                    // resize array
-                    if (currentAffactedLine >= affactedLine.length) {
-                        bundle[] newAffactedLine = new bundle[affactedLine.length * 2];
-                        for (int k = 0; k < affactedLine.length; k++) {
-                            newAffactedLine[k] = affactedLine[k];
-                        }
-                        affactedLine = newAffactedLine;
-                    }
-                    affactedLine[currentAffactedLine].affactedLine = getLineCountUntil(i, text, additionalResults);
-                    affactedLine[currentAffactedLine].lineStart = additionalResults[0]
-                            + affactedLine[currentAffactedLine].affactedLine;
-                    currentAffactedLine++;
-                }
             }
-            int lineOffset=affactedLine[0].lineStart+affactedLine[0].affactedLine;
+            // delete
+            int lineOffset = affactedLine[0].lineStart;
             for (int i = 0; i < currentAffactedLine; i++) {
                 TokenText.Line l = tokenText.getLineAt(affactedLine[i].affactedLine);
                 // check if line is fully inside deleted range
-              
-                if (l.rangeMin + affactedLine[i].lineStart >= affactedAreaOffset
-                        && l.rangeMax + affactedLine[i].lineStart <= affactedAreaOffset + affactedAreaSize) {
+
+                if (l.getOffset() >= affactedAreaOffset
+                        && l.getLength() + l.getOffset() <= affactedAreaOffset + affactedAreaSize) {
 
                     // remove all Variables;
                     boolean isDatatype = false;
@@ -622,13 +644,48 @@ public class Text_Tab {
                     }
                     tokenText.deleteLineAt(affactedLine[i].affactedLine);
                 } else {
-                    lineOffset=updateLine(lineOffset,affactedLine[i].affactedLine,text,l)+1;
+                    lineOffset = updateLine(lineOffset, affactedLine[i].affactedLine, -1, text, l) + 1;
                 }
 
             }
+
+        } else {
+
+            // affactedText = text_area.getText(affactedAreaOffset, affactedAreaSize);
+            for (int i = affactedAreaOffset; i < affactedAreaOffset + affactedAreaSize; i++) {
+
+                // resize array
+                if (currentAffactedLine >= affactedLine.length) {
+                    Bundle[] newAffactedLine = new Bundle[affactedLine.length * 2];
+                    for (int k = 0; k < affactedLine.length; k++) {
+                        newAffactedLine[k] = affactedLine[k];
+                    }
+                    affactedLine = newAffactedLine;
+                }
+                affactedLine[currentAffactedLine] = new Bundle();
+                affactedLine[currentAffactedLine].affactedLine = getLineCountUntil(i, text, additionalResults);
+                affactedLine[currentAffactedLine].lineStart = additionalResults[0];
+                affactedLine[currentAffactedLine].lineEnd = additionalResults[1];
+                i = additionalResults[1];// end of line
+                currentAffactedLine++;
+
+            }
+            // add
+            int lineOffset = affactedLine[0].lineStart;
+            for (int i = 0; i < currentAffactedLine; i++) {
+                TokenText.Line l = tokenText.getLineAt(affactedLine[i].affactedLine);
+                if (l == null) {
+                    l = tokenText.createNewLine();
+                    tokenText.insertLineAt(affactedLine[i].affactedLine, l);
+                }
+
+                lineOffset = updateLine(lineOffset, affactedLine[i].affactedLine, affactedLine[i].lineEnd, text, l) + 1;
+            }
+
         }
-        updateHighlighting(text,lNI.getLineCount());    
-        
+        tokenText.updateOffsets();
+        updateHighlighting(text, lNI.getLineCount());
+
     }
 
     private void update_language() {

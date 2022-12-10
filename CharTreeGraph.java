@@ -95,6 +95,7 @@ class CharTreeGraph {
                     if(token.length()==1){
                         if(children[i].isEnd){
                             children[i].isEnd=false;
+                            children[i].key.isValid=false;
                         }
                          
                     }
@@ -115,6 +116,7 @@ class CharTreeGraph {
     }
 
     void addTokenToGraph(Token str) {
+        str.isValid=true;
         node.addStringToGraph(str.tokenName, str);
     }
     void removeToken(Token t){
