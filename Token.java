@@ -10,7 +10,21 @@ public class Token {
         TYPE_VARIABLE,
         TYPE_GENERIC,
         TYPE_LINKED;
-
+        /* 
+        String toString(){
+            switch(this){
+                case TYPE_DATATYPE:
+                return "TYPE_DATATYPE";
+                case TYPE_VARIABLE:
+                return "TYPE_VARIABLE";
+                case TYPE_GENERIC:
+                return "TYPE_GENERIC";
+                case TYPE_LINKED:
+                return "TYPE_LINKED";
+                default:
+                return "ERROR_TYPE";
+            }
+        }*/
 
      }
     public String tokenName;

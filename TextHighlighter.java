@@ -17,20 +17,24 @@ public class TextHighlighter implements DocumentListener{
     private CharTreeGraph tokenGraph;
     private Text_Tab tab;
     private Token [] tokens;
+    private CharTreeGraph removedTokens;
     public TextHighlighter(Text_Tab tab){
         tokenGraph=new CharTreeGraph();
+        removedTokens= new CharTreeGraph();
         tokens=new Token[2];
         tokens[0]= new Token("null",0x00FF0000,Token.TokenType.TYPE_DATATYPE);
-        tokens[1]=new Token("uwu",0x000000FF,Token.TokenType.TYPE_DATATYPE);
+        tokens[1]=new Token("int",0x000000FF,Token.TokenType.TYPE_DATATYPE);
         
-        tokenGraph.addTokenToGraph(tokens[0]);
-        tokenGraph.addTokenToGraph(tokens[1]);
+        tokenGraph.addTokenToGraph(tokens[0],true);
+        tokenGraph.addTokenToGraph(tokens[1],true);
         this.tab=tab;
     }
     CharTreeGraph getGraph(){
         return this.tokenGraph;
     }
-
+    CharTreeGraph getRemovedTokenGraph( ){
+        return removedTokens;
+    }
     @Override
     public void insertUpdate(DocumentEvent e) {
        // System.out.println("e.offset: "+e.getOffset()+" e.length: "+e.getLength());

@@ -23,6 +23,10 @@ class CharTreeGraph {
                     if (str.length() > 1){
                         str = str.substring(1);
                         children[i].addStringToGraph(str, key);
+                    }else{
+                        children[i].isEnd=true;
+                        children[i].key=key;
+                        key.isValid=true;
                     }
                 }
             }
@@ -51,7 +55,7 @@ class CharTreeGraph {
                 
                 if(children[i].c == token.charAt(0)) {
                     //token is at the end
-                    if(token.length()==1){
+                    if(token.length()==1 ){
                         if(children[i].isEnd){
                             return children[i].key;
                         }
@@ -60,9 +64,19 @@ class CharTreeGraph {
                         }
                     }
                     else {
-                        token = token.substring(1);
-                        Token res = children[i].searchForToken(token);
-                        return res;
+                        if(token.charAt(1)==' '){
+                            if(children[i].isEnd){
+                                return children[i].key;
+                            }
+                            else {
+                                return null;
+                            }
+                        }else{
+                            token = token.substring(1);
+                            Token res = children[i].searchForToken(token);
+                            return res;
+                        }
+                     
                         /* 
                         if (res == null) {
                             if (this.isEnd) {
@@ -87,7 +101,7 @@ class CharTreeGraph {
             }*/
             return null;
         }
-        public void removeTokenStringFast(String token){
+        public Token removeTokenStringFast(String token){
             for (int i = 0; i < this.currentChild; i++) {
                 
                 if(children[i].c == token.charAt(0)) {
@@ -96,17 +110,19 @@ class CharTreeGraph {
                         if(children[i].isEnd){
                             children[i].isEnd=false;
                             children[i].key.isValid=false;
+                            return children[i].key;
                         }
                          
                     }
                     else {
                         token = token.substring(1);
-                        children[i].searchForToken(token);
+                        return children[i].removeTokenStringFast(token);
                         
                         
                     }
                 }
             }
+            return null;
         }  
     }
     private CharTreeNode node;
@@ -115,13 +131,15 @@ class CharTreeGraph {
         node = new CharTreeNode('a', false, null);
     }
 
-    void addTokenToGraph(Token str) {
-        str.isValid=true;
+    void addTokenToGraph(Token str,boolean applyValid) {
+        str.isValid=applyValid;
         node.addStringToGraph(str.tokenName, str);
     }
-    void removeToken(Token t){
+    Token removeToken(Token t){
         if(t!=null){
-            node.removeTokenStringFast(t.tokenName);
+            return node.removeTokenStringFast(t.tokenName);
+        }else{
+            return null;
         }
     }
     Token searchForToken(String tokenStr) {
