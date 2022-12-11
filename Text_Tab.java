@@ -275,6 +275,7 @@ public class Text_Tab {
 
         public void updateOffsets() {
             int currentOffset = 0;
+       
             for (Line l = resetIteration(); l != null; l = iterate()) {
                 l.offset = currentOffset;
                 currentOffset += l.length;
@@ -297,17 +298,18 @@ public class Text_Tab {
                     start.next = end;
                 }
             } else {
-                Lineholder el = start;
+            
                 boolean inserted = false;
                 Lineholder iterator = start;
 
                 for (int i = 0; iterator != null; iterator = iterator.next, i++) {
                     if (i == index) {
-                        Lineholder pre = el.prev;
-                        el.prev = new Lineholder(pre, el);
+                        Lineholder pre = iterator.prev;
+                        iterator.prev = new Lineholder(pre, iterator);
                         if (pre != null) {
-                            pre.next = el.prev;
+                            pre.next = iterator.prev;
                         }
+                        iterator.prev.line=l;
                         inserted = true;
                         break;
                     }
@@ -316,12 +318,26 @@ public class Text_Tab {
                     // is at end
                     Lineholder pre = end;
                     end = new Lineholder(pre, null);
+                    end.line= l;
                     pre.next = end;
+                   
 
                 }
             }
         }
+        public void debugPrint(int id){
+            System.out.println("*------------------------------TX--------------------------------*");
+            System.out.println("DebugPrint of Tokentext: ( "+id+" )");
+            int i=0;
+            for(Line l= resetIteration();l!=null;l= iterate(),i++){
+                System.out.println("Printing Line "+i+": ");
+                l.debugPrint();
+                System.out.println("*-----------------------End of Line-------------------------*");
+            }
+            System.out.println("End of Debugprint ( "+id+" )"); 
+            System.out.println("*------------------------------ETX--------------------------------*");       
 
+        }
         public void deleteLineAt(int index) {
             Lineholder iterator = start;
             for (int i = 0; iterator != null; iterator = iterator.next, i++) {
@@ -367,11 +383,11 @@ public class Text_Tab {
     public String prevText;
     public final Token newVarPreset;
     public Line_Number_Inserter lNI;
-
+    private int editCycle;
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
         this.root = root;
         this.tab_manager = ptab_manager;
-        newVarPreset = new Token("preset", 0x0000FFFF, Token.TokenType.TYPE_VARIABLE);
+        newVarPreset = new Token("preset", 0x00FF0000, Token.TokenType.TYPE_VARIABLE);
         System.out.println(pfile_name);
         this.text_area = new JTextPane();
         this.text_area.setFont(new Font("Hack", Font.PLAIN, 13));
@@ -434,6 +450,7 @@ public class Text_Tab {
 
         // Make this the selected tab
         this.tab_manager.setSelectedIndex(this.tab_index);
+        editCycle=0;
     }
 
     private class ResultCache {
@@ -472,14 +489,14 @@ public class Text_Tab {
             if (i + 1 < str.length()) {
                 if (str.charAt(i) == (char) 13 && str.charAt(i + 1) == '\n') {
                     lineCounter++;
-                    currentLineStart = charCounter;
+                    currentLineStart = charCounter+1;
+                    charCounter++;
                     i++;
                 }
             }
-            if (charCounter >= index) {
+            if (charCounter-lineCounter>= index) {
                 if (additionalResults != null) {
                     additionalResults[0] = currentLineStart;
-
                 }
 
                 break;
@@ -487,12 +504,12 @@ public class Text_Tab {
             charCounter++;
 
         }
-        for (int i = charCounter + lineCounter; i < str.length(); i++) {
-            if (str.charAt(i) == '\n') {
-
-                lastIndex = i;
-
-                break;
+        for (int i = charCounter; i < str.length(); i++) {
+            if (i + 1 < str.length()) {
+                if (str.charAt(i) == (char) 13 && str.charAt(i + 1) == '\n') {
+                     lastIndex=i;
+                     break;
+                }
             }
         }
         if (additionalResults != null) {
@@ -512,11 +529,14 @@ public class Text_Tab {
         String newVar = new String();
         int lastIndex = text.length();
         int realOffset = offset;
+        //System.out.println("char: "+(int)text.charAt(offset));
         if (endOfLine == -1) {
             for (int i = realOffset; i < text.length(); i++) {
-                if (text.charAt(i) == '\n') {
-                    lastIndex = i;
-                    break;
+                if (i + 1 < text.length()) {
+                    if (text.charAt(i) == (char) 13 && text.charAt(i + 1) == '\n') {
+                         lastIndex=i;
+                         break;
+                    }
                 }
             }
         } else {
@@ -550,14 +570,14 @@ public class Text_Tab {
             if (!isDatatype) {
                 Token t = graph.searchForToken(text.substring(i, lastIndex));
                 if (t != null) {
+                        // use local address
                     address = i - realOffset;
-                    // use local address
+                
 
                     if (addr != null) {
-                        if (addr.t != t && addr.address != address) {
-                            addr.t = t;
-                            addr.address = address;
-                        }
+                         
+                        addr.t = t;
+                        addr.address = address;
                         addr = line.Iterate();
                     } else {
                         line.append(new TokenAddress(address, t));
@@ -606,7 +626,7 @@ public class Text_Tab {
             graph.addTokenToGraph(newToken,true);
             if (addr != null) {
                 addr.t = newToken;
-                addr.address=lastIndex-newVar.length();
+                addr.address=address;
                 addr=line.Iterate();
             } else {
                 line.append(new TokenAddress(address, newToken));
@@ -628,17 +648,17 @@ public class Text_Tab {
 
         sDoc.setCharacterAttributes(0, text.length() - totalLineCount, colorAttributeSet, true);
 
-        int lineCount = 0;
+ 
 
-        for (TokenText.Line line = tokenText.resetIteration(); line != null; line = tokenText.iterate(), lineCount++) {
+        for (TokenText.Line line = tokenText.resetIteration(); line != null; line = tokenText.iterate()) {
             for (TokenAddress addr = line.resetIteration(); addr != null; addr = line.Iterate()) {
-                if (addr.t.isValid) {
+                if (addr.t.isValid) {//new Color(addr.t.backgroundColor)
                     StyleConstants.setForeground(colorAttributeSet, new Color(addr.t.fontColor));
-                    StyleConstants.setBackground(colorAttributeSet, new Color(addr.t.backgroundColor));
+                    StyleConstants.setBackground(colorAttributeSet,new Color(0x00BBBBBB) );
                     StyleConstants.setUnderline(colorAttributeSet, (addr.t.flags & 0x01) == 0x01);
                     StyleConstants.setBold(colorAttributeSet, (addr.t.flags & 0x02) == 0x02);
 
-                    sDoc.setCharacterAttributes(line.getOffset() + addr.address - lineCount, addr.t.tokenName.length(),
+                    sDoc.setCharacterAttributes(line.getOffset() + addr.address, addr.t.tokenName.length(),
                             colorAttributeSet, true);
                 }
 
@@ -710,6 +730,7 @@ public class Text_Tab {
                     tokenText.deleteLineAt(affactedLine[i].affactedLine);
                 } else {
                     lineOffset = updateLine(lineOffset, affactedLine[i].affactedLine, -1, text, l) + 1;
+               
                 }
 
             }
@@ -729,6 +750,7 @@ public class Text_Tab {
                 }
                 affactedLine[currentAffactedLine] = new Bundle();
                 affactedLine[currentAffactedLine].affactedLine = getLineCountUntil(i, text, additionalResults);
+                
                 affactedLine[currentAffactedLine].lineStart = additionalResults[0];
                 affactedLine[currentAffactedLine].lineEnd = additionalResults[1];
                 i = additionalResults[1];// end of line
@@ -745,12 +767,16 @@ public class Text_Tab {
                 }
                 //l.debugPrint();
                 lineOffset = updateLine(lineOffset, affactedLine[i].affactedLine, affactedLine[i].lineEnd, text, l) + 1;
+            
                 //l.debugPrint();
             }
 
         }
+        
         tokenText.updateOffsets();
+        //tokenText.debugPrint(editCycle);
         updateHighlighting(text, lNI.getLineCount());
+        editCycle++;
 
     }
 

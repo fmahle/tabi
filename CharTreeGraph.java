@@ -26,7 +26,7 @@ class CharTreeGraph {
                     }else{
                         children[i].isEnd=true;
                         children[i].key=key;
-                        key.isValid=true;
+                        //key.isValid=true;
                     }
                 }
             }
@@ -132,8 +132,10 @@ class CharTreeGraph {
     }
 
     void addTokenToGraph(Token str,boolean applyValid) {
-        str.isValid=applyValid;
-        node.addStringToGraph(str.tokenName, str);
+        if(str!=null){
+            str.isValid=applyValid;
+            node.addStringToGraph(str.tokenName, str);
+        }
     }
     Token removeToken(Token t){
         if(t!=null){
