@@ -856,7 +856,7 @@ public class Text_Tab {
         }
 
         try {
-            new ProcessBuilder(this.program, this.file_name).inheritIO().start();
+            new ProcessBuilder("python3", "console_starter.py", this.program, this.file_name).inheritIO().start();
         } catch (IOException e) {
         }
     }
