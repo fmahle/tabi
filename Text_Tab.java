@@ -773,7 +773,7 @@ public class Text_Tab {
         }
         
         tokenText.updateOffsets();
-        //tokenText.debugPrint(editCycle);
+        tokenText.debugPrint(editCycle);
         updateHighlighting(text, lNI.getLineCount());
         editCycle++;
 

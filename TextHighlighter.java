@@ -19,7 +19,7 @@ public class TextHighlighter implements DocumentListener{
     private Token [] tokens;
     private CharTreeGraph removedTokens;
     public TextHighlighter(Text_Tab tab){
-        tokenGraph=new CharTreeGraph();
+        //tokenGraph=new CharTreeGraph();
         removedTokens= new CharTreeGraph();
         //tokens=new Token[2];
         //tokens[0]= new Token("null",0x00FF0000,Token.TokenType.TYPE_DATATYPE);
@@ -31,7 +31,7 @@ public class TextHighlighter implements DocumentListener{
         this.tab=tab;
     }
     CharTreeGraph getGraph(){
-        return this.tokenGraph;
+        return tokenGraph;
     }
     public static void init(){
         tokenGraph=new CharTreeGraph();
