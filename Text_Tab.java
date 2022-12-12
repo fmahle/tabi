@@ -351,12 +351,13 @@ public class Text_Tab {
             }
             if (iterator != null) {
                 if (iterator.next != null && iterator.prev != null) {
-                    Lineholder pre = iterator;
+                    Lineholder pre = iterator.prev;
                     iterator.next.prev = iterator.prev;
                     iterator.prev.next = iterator.next;
-                    iterator = iterator.prev;
-                    pre.next = null;
-                    pre.prev = null;
+                    iterator.next = null;
+                    iterator.prev = null;
+                    iterator = pre;
+                  
                 } else if (iterator == end) {
                     // is at end
                     Lineholder pre = end;
@@ -364,7 +365,7 @@ public class Text_Tab {
                     end.next = null;
                     pre.prev = null;
 
-                }
+                }else
                 if (iterator == start) {
                     Lineholder pre = start;
                     start = start.next;
@@ -780,7 +781,8 @@ public class Text_Tab {
             int lineOffset = affactedLine[0].lineStart;
             for (int i = 0; i < currentAffactedLine; i++) {
                 TokenText.Line l = tokenText.getLineAt(affactedLine[i].affactedLine);
-                if (l == null) {
+                //System.out.println("Char: "+(int)text.charAt(affactedAreaOffset+(affactedLine[i].affactedLine)<0?0:affactedAreaOffset+(affactedLine[i].affactedLine))+" Line: "+affactedAreaOffset +" : "+affactedLine[i].affactedLine);
+                if ((l == null||i>0)|| text.charAt(affactedAreaOffset-(affactedLine[i].affactedLine)<0?0:affactedAreaOffset+(affactedLine[i].affactedLine))=='\n') {
                     l = tokenText.createNewLine();
                     tokenText.insertLineAt(affactedLine[i].affactedLine, l);
                 }
