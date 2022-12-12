@@ -653,7 +653,7 @@ public class Text_Tab {
             for (TokenAddress addr = line.resetIteration(); addr != null; addr = line.Iterate()) {
                 if (addr.t.isValid) {//new Color(addr.t.backgroundColor)
                     StyleConstants.setForeground(colorAttributeSet, new Color(addr.t.fontColor));
-                    StyleConstants.setBackground(colorAttributeSet,new Color(0x00BBBBBB) );
+                    StyleConstants.setBackground(colorAttributeSet,new Color(addr.t.backgroundColor) );
                     StyleConstants.setUnderline(colorAttributeSet, (addr.t.flags & 0x01) == 0x01);
                     StyleConstants.setBold(colorAttributeSet, (addr.t.flags & 0x02) == 0x02);
 
