@@ -253,8 +253,10 @@ public class Text_Tab {
         }
 
         public Line resetIteration() {
+
             iterator = start;
-            return start.line;
+
+            return start!=null?start.line:null;
         }
 
         public Line iterate() {
