@@ -378,18 +378,18 @@ public class Text_Tab {
 
     public boolean[] unsaved_changes = { false }; // make bool pointer
     public String file_name = "";
-    public String program = "";
-    public final JTextPane text_area;
-    public int tab_index;
-    public JTabbedPane tab_manager;
-    public TextHighlighter highlighter;
-    public Window root;
-    public int lastDot;
-    public JLabel lblTitle;
-    public TokenText tokenText;
-    public String prevText;
-    public final Token newVarPreset;
-    public Line_Number_Inserter lNI;
+    private String program = "";
+    private final JTextPane text_area;
+    private int tab_index;
+    private JTabbedPane tab_manager;
+    private TextHighlighter highlighter;
+    private Window root;
+    private int lastDot;
+    private JLabel lblTitle;
+    private TokenText tokenText;
+    private String prevText;
+    private final Token newVarPreset;
+    private Line_Number_Inserter lNI;
     private int editCycle;
 
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
