@@ -14,25 +14,24 @@ import javax.swing.text.StyleConstants.ColorConstants;
 
 import java.awt.Color;
 public class TextHighlighter implements DocumentListener{
-    private CharTreeGraph tokenGraph;
+    private static CharTreeGraph tokenGraph;
     private Text_Tab tab;
-    private Token [] tokens;
+   // private Token [] tokens;
     private CharTreeGraph removedTokens;
+    //private static boolean finished;
     public TextHighlighter(Text_Tab tab){
-        tokenGraph=new CharTreeGraph();
         removedTokens= new CharTreeGraph();
-        tokens=new Token[2];
-        tokens[0]= new Token("null",0x00FF0000,Token.TokenType.TYPE_DATATYPE);
-        tokens[1]=new Token("int",0x000000FF,Token.TokenType.TYPE_DATATYPE);
         
-        tokenGraph.addTokenToGraph(tokens[0],true);
-        tokenGraph.addTokenToGraph(tokens[1],true);
         this.tab=tab;
     }
-    CharTreeGraph getGraph(){
-        return this.tokenGraph;
+    public static void init(){
+        tokenGraph=new CharTreeGraph();
+        token_parser.parse(tokenGraph);
     }
-    CharTreeGraph getRemovedTokenGraph( ){
+    public CharTreeGraph getGraph(){
+        return tokenGraph;
+    }
+    public CharTreeGraph getRemovedTokenGraph( ){
         return removedTokens;
     }
     @Override

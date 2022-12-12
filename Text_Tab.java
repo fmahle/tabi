@@ -445,7 +445,6 @@ public class Text_Tab {
         if (pfile_name != "") {
             open_file(pfile_name);
         }
-
         this.unsaved_changes[0] = false;
 
         // Make this the selected tab
