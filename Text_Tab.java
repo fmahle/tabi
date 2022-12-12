@@ -394,7 +394,7 @@ public class Text_Tab {
     Text_Tab(JTabbedPane ptab_manager, Window root, String pfile_name) {
         this.root = root;
         this.tab_manager = ptab_manager;
-        newVarPreset = new Token("preset", 0x00FF0000, Token.TokenType.TYPE_VARIABLE);
+        newVarPreset = new Token("preset", 0x000F00FF,0xFFFFFFFF,0x02, Token.TokenType.TYPE_VARIABLE);
         System.out.println(pfile_name);
         this.text_area = new JTextPane();
         this.text_area.setFont(new Font("Hack", Font.PLAIN, 13));
@@ -566,7 +566,7 @@ public class Text_Tab {
                 isDatatype = true;
             } else if (isDatatype) {
                 // resize if needed
-                removedTokens.addTokenToGraph(graph.removeToken(addr.t), false);
+                removedTokens.addTokenToGraph(graph.removeToken(addr.t), false,true);
                 isDatatype = false;
             }
 
@@ -610,14 +610,17 @@ public class Text_Tab {
                         if (newToken == null) {
                             newToken = new Token(newVar, newVarPreset);
                         }
-                        graph.addTokenToGraph(newToken, true);
-                        if (addr != null) {
-                            addr.t = newToken;
-                            addr.address = address;
-                            addr = line.Iterate();
-                        } else {
-                            line.append(new TokenAddress(address, newToken));
+                        if(graph.addTokenToGraph(newToken, true,false)){
+                            if (addr != null) {
+                                addr.t = newToken;
+                                addr.address = address;
+                                addr = line.Iterate();
+                            } else {
+                                line.append(new TokenAddress(address, newToken));
+                            }
                         }
+                        
+                      
                         newVar = new String();
                         keepAddress=false;
                     }
@@ -636,14 +639,16 @@ public class Text_Tab {
             if (newToken == null) {
                 newToken = new Token(newVar, newVarPreset);
             }
-            graph.addTokenToGraph(newToken, true);
-            if (addr != null) {
-                addr.t = newToken;
-                addr.address = address;
-                addr = line.Iterate();
-            } else {
-                line.append(new TokenAddress(address, newToken));
-            }
+            if(graph.addTokenToGraph(newToken, true,false)){
+                if (addr != null) {
+                    addr.t = newToken;
+                    addr.address = address;
+                    addr = line.Iterate();
+                } else {
+                    line.append(new TokenAddress(address, newToken));
+                }
+            };
+           
         }
         line.removeEverythingAfterIteratorInc();
         return lastIndex;
