@@ -1,3 +1,4 @@
+import java.io.File;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
@@ -34,7 +35,7 @@ public class Window {
             @Override
             public void windowClosing(WindowEvent e) {
                 while (tab_manager.getTabCount() != 0) {
-                    if (!selab().close_file(false)) {
+                    if (!get_selected_tab().close_file(false)) {
                         return;
                     }
                 }
@@ -73,7 +74,10 @@ public class Window {
 
         this.new_file = new JMenuItem();
         this.open_file = new JMenuItem();
+
         this.open_recent = new JMenu();
+        update_recent_file_list();
+
         this.save_file = new JMenuItem();
         this.save_as = new JMenuItem();
         this.close_file = new JMenuItem();
@@ -97,8 +101,8 @@ public class Window {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
                 if (fileChooser.showOpenDialog(root) == JFileChooser.APPROVE_OPTION) {
-                    if (selab().file_name == "" && (!selab().unsaved_changes[0])) {
-                        selab().open_file(fileChooser.getSelectedFile().getAbsolutePath());
+                    if (get_selected_tab().file_name == "" && (!get_selected_tab().unsaved_changes[0])) {
+                        get_selected_tab().open_file(fileChooser.getSelectedFile().getAbsolutePath());
                     }
                     else {
                         new_tab(fileChooser.getSelectedFile().getAbsolutePath());
@@ -123,7 +127,7 @@ public class Window {
         Action action4 = new AbstractAction("Save File") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selab().save_document();
+                get_selected_tab().save_document();
             }
         };
 
@@ -134,7 +138,7 @@ public class Window {
         Action action5 = new AbstractAction("Save File As") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selab().save_as();
+                get_selected_tab().save_as();
             }
         };
 
@@ -145,7 +149,7 @@ public class Window {
         Action action6 = new AbstractAction("Close Current Document") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selab().close_file(true);
+                get_selected_tab().close_file(true);
             }
         };
 
@@ -156,7 +160,7 @@ public class Window {
         Action action7 = new AbstractAction("Save & Execute") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selab().execute();
+                get_selected_tab().execute();
             }
         };
 
@@ -167,7 +171,7 @@ public class Window {
         Action actiona = new AbstractAction("Choose language") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selab().choose_language();
+                get_selected_tab().choose_language();
             }
         };
 
@@ -198,6 +202,24 @@ public class Window {
 
         this.tab_manager = new JTabbedPane();
 
+        this.tab_manager.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                Text_Tab temp = get_selected_tab();
+                if (temp != null) {
+                    if (temp.file_name == "") {
+                        root.setTitle("Tabi");
+                    }
+                    else {
+                        root.setTitle(new File(temp.file_name).getName() + " -- Tabi");
+                    }
+                }
+            }
+        });
+
+        this.root.add(this.tab_manager);
+
+        this.root.setVisible(true);
+
         if (args.length == 0) {
             new_tab("");
         }
@@ -207,23 +229,7 @@ public class Window {
             }
         }
 
-        //TODO Fix this shit:
 
-        //this.tab_manager.addChangeListener(new ChangeListener() {
-        //    public void stateChanged(ChangeEvent e) {
-        //        //System.out.println("Tab: " + tab_manager.getSelectedIndex());
-        //        //try {
-        //        //    Thread.sleep(50);
-        //        //}
-        //        //catch (InterruptedException ex) {}
-        //        root.setTitle(" -- Tabi");
-        //    }
-        //});
-
-        this.root.add(this.tab_manager);
-
-        this.root.setVisible(true);
-        update_recent_file_list();
     }
 
     public void update_recent_file_list() {
@@ -239,8 +245,8 @@ public class Window {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (new Filesystem().does_file_exist(file_name)) {
-                        if (selab().file_name == "" && (!selab().unsaved_changes[0])) {
-                            selab().open_file(file_name);
+                        if (get_selected_tab().file_name == "" && (!get_selected_tab().unsaved_changes[0])) {
+                            get_selected_tab().open_file(file_name);
                         }
                         else {
                             new_tab(file_name);
@@ -265,7 +271,7 @@ public class Window {
         return temp;
     }
 
-    private Text_Tab selab() { //get_selected_tab()
+    private Text_Tab get_selected_tab() {
         return (Text_Tab) tabs.get(tab_manager.getSelectedIndex());
     }
 }

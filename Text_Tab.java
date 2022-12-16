@@ -782,7 +782,7 @@ public class Text_Tab {
             for (int i = 0; i < currentAffactedLine; i++) {
                 TokenText.Line l = tokenText.getLineAt(affactedLine[i].affactedLine);
                 //System.out.println("Char: "+(int)text.charAt(affactedAreaOffset+(affactedLine[i].affactedLine)<0?0:affactedAreaOffset+(affactedLine[i].affactedLine))+" Line: "+affactedAreaOffset +" : "+affactedLine[i].affactedLine);
-                if ((l == null||i>0)|| text.charAt(affactedAreaOffset-(affactedLine[i].affactedLine)<0?0:affactedAreaOffset+(affactedLine[i].affactedLine))=='\n') {
+                if ((l == null||i>0)|| text.charAt(affactedAreaOffset+(affactedLine[i].affactedLine)<0?0:affactedAreaOffset+(affactedLine[i].affactedLine))=='\n') {
                     l = tokenText.createNewLine();
                     tokenText.insertLineAt(affactedLine[i].affactedLine, l);
                 }
