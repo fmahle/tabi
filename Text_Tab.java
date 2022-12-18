@@ -600,7 +600,7 @@ public class Text_Tab {
                 }
             } else {
 
-                if ( isSeperated&& ((text.charAt(i) != ' ' && text.charAt(i) != '\n') && text.charAt(i) != ';')) {
+                if ( isSeperated&& ((text.charAt(i) != ' ' && text.charAt(i) != '\n') && (text.charAt(i) != ';'&&text.charAt(i) != '\t'))) {
                     keepAddress=true;
                     newVar += text.charAt(i);
 
@@ -629,7 +629,7 @@ public class Text_Tab {
                 }
 
             }
-            if ((text.charAt(i) == ' ' || text.charAt(i) == '\n') || text.charAt(i) == ';'||isDatatype) {
+            if ((text.charAt(i) == ' ' || text.charAt(i) == '\n') || text.charAt(i) == ';'||text.charAt(i) == '\t'||isDatatype) {
                 isSeperated = true;
             } else {
                 isSeperated = false;
