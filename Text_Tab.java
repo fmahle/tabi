@@ -655,6 +655,7 @@ public class Text_Tab {
                         System.out.println(newVar);
                         newVar = new String();
                         keepAddress=false;
+                        addInvalid=false;
                     }
 
                 }
