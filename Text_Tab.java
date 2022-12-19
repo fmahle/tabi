@@ -576,13 +576,24 @@ public class Text_Tab {
         addr = line.resetIteration();
         boolean keepAddress=false;
         //true if next this char is seperated.(charAt i-1 == ' ')
-        boolean isSeperated = true;
+        boolean isSeperated;
         int address = 0;
+        boolean addInvalid=false;
+        if(realOffset>0){
+            if ((text.charAt(realOffset-1) == ' ' || text.charAt(realOffset-1) == '\n') || text.charAt(realOffset-1) == ';'||text.charAt(realOffset-1) == '\t') {
+                isSeperated = true;
+            } else {
+                isSeperated = false;
+            }
+        }else{
+            isSeperated=true;
+        }
+     
         for (int i = realOffset; i < lastIndex; i++) {
             if (isSeperated&&!keepAddress) {
                 address = i - realOffset;
             }
-            if (!isDatatype && isSeperated) {
+            if (!isDatatype && isSeperated&&!addInvalid) {
                 Token t = graph.searchForToken(text.substring(i, lastIndex));
                 if (t != null) {
                     // use local address
@@ -598,6 +609,13 @@ public class Text_Tab {
                         isDatatype = true;
                     }
                     i += t.tokenName.length() - 1;
+                }else {
+                    if(((text.charAt(i) != ' ' && text.charAt(i) != '\n') && (text.charAt(i) != ';'&&text.charAt(i) != '\t'))){
+                        keepAddress=true;
+                        newVar += text.charAt(i);
+                        addInvalid=true;
+                    }
+                  
                 }
             } else {
 
@@ -612,7 +630,18 @@ public class Text_Tab {
                         if (newToken == null) {
                             newToken = new Token(newVar, newVarPreset);
                         }
-                        if(graph.addTokenToGraph(newToken, true,false)){
+                        if(!addInvalid){
+                            if(graph.addTokenToGraph(newToken, true,false)){
+                                if (addr != null) {
+                                    addr.t = newToken;
+                                    addr.address = address;
+                                    addr = line.Iterate();
+                                } else {
+                                    line.append(new TokenAddress(address, newToken));
+                                }
+                            }
+                        }else{
+                            removedTokens.addTokenToGraph(newToken, false, false);
                             if (addr != null) {
                                 addr.t = newToken;
                                 addr.address = address;
@@ -621,8 +650,9 @@ public class Text_Tab {
                                 line.append(new TokenAddress(address, newToken));
                             }
                         }
+                       
                         
-                      
+                        System.out.println(newVar);
                         newVar = new String();
                         keepAddress=false;
                     }
@@ -630,7 +660,7 @@ public class Text_Tab {
                 }
 
             }
-            if ((text.charAt(i) == ' ' || text.charAt(i) == '\n') || text.charAt(i) == ';'||text.charAt(i) == '\t'||isDatatype) {
+            if ((text.charAt(i) == ' ' || text.charAt(i) == '\n') || text.charAt(i) == ';'||text.charAt(i) == '\t'||isDatatype||addInvalid) {
                 isSeperated = true;
             } else {
                 isSeperated = false;
@@ -641,7 +671,18 @@ public class Text_Tab {
             if (newToken == null) {
                 newToken = new Token(newVar, newVarPreset);
             }
-            if(graph.addTokenToGraph(newToken, true,false)){
+            if(!addInvalid){
+                if(graph.addTokenToGraph(newToken, true,false)){
+                    if (addr != null) {
+                        addr.t = newToken;
+                        addr.address = address;
+                        addr = line.Iterate();
+                    } else {
+                        line.append(new TokenAddress(address, newToken));
+                    }
+                }
+            }else{
+                removedTokens.addTokenToGraph(newToken, false, false);
                 if (addr != null) {
                     addr.t = newToken;
                     addr.address = address;
@@ -649,9 +690,10 @@ public class Text_Tab {
                 } else {
                     line.append(new TokenAddress(address, newToken));
                 }
-            };
+            }
            
         }
+        System.out.println(newVar);
         line.removeEverythingAfterIteratorInc();
         return lastIndex;
     }
@@ -675,6 +717,14 @@ public class Text_Tab {
                     StyleConstants.setBackground(colorAttributeSet, new Color(addr.t.backgroundColor));
                     StyleConstants.setUnderline(colorAttributeSet, (addr.t.flags & 0x01) == 0x01);
                     StyleConstants.setBold(colorAttributeSet, (addr.t.flags & 0x02) == 0x02);
+
+                    sDoc.setCharacterAttributes(line.getOffset() + addr.address, addr.t.tokenName.length(),
+                            colorAttributeSet, true);
+                }else{
+                    StyleConstants.setForeground(colorAttributeSet, new Color(0x00000000));
+                    StyleConstants.setBackground(colorAttributeSet, new Color(0x00FF0000));
+                    StyleConstants.setUnderline(colorAttributeSet, true);
+                    StyleConstants.setBold(colorAttributeSet, false);
 
                     sDoc.setCharacterAttributes(line.getOffset() + addr.address, addr.t.tokenName.length(),
                             colorAttributeSet, true);
@@ -796,7 +846,7 @@ public class Text_Tab {
         }
 
         tokenText.updateOffsets();
-        //tokenText.debugPrint(editCycle);
+        tokenText.debugPrint(editCycle);
         updateHighlighting(text, lNI.getLineCount());
         editCycle++;
 
