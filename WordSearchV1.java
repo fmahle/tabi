@@ -14,7 +14,7 @@ public class WordSearchV1 {
             keys[2] = "Hi";
             keys[3] = "hi";
 
-            searchInInputMass(s, keys);
+            searchInInput(s, keys[0]);
 
         } catch (Exception e) {
 

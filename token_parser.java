@@ -7,7 +7,21 @@ public class token_parser {
             for (int i=0; i<lines.length; i++) {
                 try{
                     arguments= lines[i].split(" ");
-                    Token.TokenType type= arguments[4].matches("g")?Token.TokenType.TYPE_GENERIC:arguments[4].matches("d")?Token.TokenType.TYPE_DATATYPE:arguments[4].matches("l")?Token.TokenType.TYPE_LINKED:Token.TokenType.TYPE_GENERIC;
+                    Token.TokenType type;
+                    switch(arguments[4].charAt(0)){
+                        case 'g':
+                        type=Token.TokenType.TYPE_GENERIC;
+                        break;
+                        case 'd':
+                        type=Token.TokenType.TYPE_DATATYPE;
+                        break;
+                        case 'l':
+                        type=Token.TokenType.TYPE_LINKED;
+                        break;
+                        default:
+                        type=Token.TokenType.TYPE_GENERIC;
+                    }
+                    //soken.TokenType type= arguments[4].matches("g")?Token.TokenType.TYPE_GENERIC:arguments[4].matches("d")?Token.TokenType.TYPE_DATATYPE:arguments[4].matches("l")?Token.TokenType.TYPE_LINKED:Token.TokenType.TYPE_GENERIC;
         
                     graph.addTokenToGraph(new Token(arguments[0], Integer.parseInt(arguments[1], 16), Integer.parseInt(arguments[2], 16),Integer.parseInt(arguments[3]), type), true,false);
                 }catch(Exception e){
