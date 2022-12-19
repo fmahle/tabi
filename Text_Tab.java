@@ -575,6 +575,7 @@ public class Text_Tab {
         isDatatype = false;
         addr = line.resetIteration();
         boolean keepAddress=false;
+        //true if next this char is seperated.(charAt i-1 == ' ')
         boolean isSeperated = true;
         int address = 0;
         for (int i = realOffset; i < lastIndex; i++) {
